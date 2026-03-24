@@ -1,0 +1,36 @@
+.login-box {
+  max-width: 350px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.form-group { margin-bottom: 15px; }
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.error-badge {
+  color: white;
+  background: #ff4d4d;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}

@@ -1,1 +1,21 @@
-<p>account works!</p>
+<div class="account-container">
+  <h2>Личный кабинет</h2>
+
+  @if (message) {
+    <div class="success-alert">{{ message }}</div>
+  }
+
+  <div class="profile-card">
+    <div class="field">
+      <label>Электронная почта:</label>
+      <input type="email" [(ngModel)]="userProfile.email">
+    </div>
+
+    <div class="field">
+      <label>О себе:</label>
+      <textarea [(ngModel)]="userProfile.bio" rows="4"></textarea>
+    </div>
+
+    <button class="save-btn" (click)="updateProfile()">Сохранить изменения</button>
+  </div>
+</div>
