@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'api', # Твое приложение
+    
 ]
 
 MIDDLEWARE = [
@@ -132,16 +133,27 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Настройки Django Rest Framework
+import os
+from datetime import timedelta
+
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ]
+        'rest_framework.permissions.AllowAny', # Оставляем для тестов, но во вьюхах переопределим
+    ],
 }
 
-# Настройки времени жизни JWT токенов (опционально, но полезно)
-from datetime import timedelta
+# Настройки для токенов (срок жизни и т.д.)
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+
+CORS_ALLOW_ALL_ORIGINS = True # Для учебного проекта — самое то

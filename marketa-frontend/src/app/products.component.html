@@ -1,0 +1,20 @@
+<div class="grid grid-cols-2 gap-6">
+  @for (p of products; track p.id) {
+    <div class="bg-white p-4 rounded-[40px] shadow-sm">
+      <h3 class="font-black text-[10px] uppercase">{{ p.name }}</h3>
+      <span class="text-xl font-black">{{ p.price }} ₸</span>
+      
+      @if (getInCartQty(p.id) === 0) {
+        <button (click)="addToCart(p)" class="bg-[#16A34A] text-white p-2 rounded-xl">
+          Добавить
+        </button>
+      } @else {
+        <div class="flex items-center gap-2">
+          <button (click)="cartService.updateQuantity(p, -1)">-</button>
+          <span>{{ getInCartQty(p.id) }}</span>
+          <button (click)="cartService.updateQuantity(p, 1)">+</button>
+        </div>
+      }
+    </div>
+  }
+</div>
