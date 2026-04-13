@@ -5,11 +5,18 @@ from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Product, Category
 from .serializers import ProductSerializer, CategorySerializer
+from rest_framework import viewsets, filters # Добавь filters
+from django_filters.rest_framework import DjangoFilterBackend # Добавь этот импорт
 
 # 1. ViewSet для полного CRUD (закрывает требования по CRUD)
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['category']  # Позволяет делать ?category=ID
+    search_fields = ['name']         # Позволяет делать ?search=iphone
+    ordering_fields = ['price']      # Позволяет делать ?ordering=price
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -35,6 +42,11 @@ class ProductDetailAPIView(APIView):
             return Response(ProductSerializer(product).data)
         except Product.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+# api/views.py
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet): # ReadOnly, если только для чтения
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 # 4. Function-Based Views (FBV) с декораторами
 @api_view(['GET'])

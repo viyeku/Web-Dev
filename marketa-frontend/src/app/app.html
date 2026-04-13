@@ -1,74 +1,73 @@
-<div class="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-900">
-  
-  <nav class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center gap-8">
-      <h1 class="text-xl font-black tracking-tighter text-blue-600">MARKETA.</h1>
-      <div class="hidden md:flex gap-6 text-sm font-medium text-gray-500">
-        <a href="#" class="hover:text-blue-600 transition">Каталог</a>
-        <a href="#" class="hover:text-blue-600 transition">Заказы</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<link rel="stylesheet" href="./app.css">
+<body>
+
+<div class="page-container">
+  <nav class="navbar">
+    <div class="nav-left">
+      <h1 class="logo">MARKETA.</h1>
+      <div class="nav-links">
+        <a href="#" class="nav-link">Каталог</a>
+        <a href="#" class="nav-link">Заказы</a>
       </div>
     </div>
 
-    <div class="flex items-center gap-4">
-      <div class="relative bg-gray-100 rounded-full px-4 py-2 flex items-center">
-        <span class="text-gray-400 mr-2">🔍</span>
-        <input type="text" placeholder="Поиск девайсов..." class="bg-transparent border-none outline-none text-sm w-48">
+    <div class="nav-right">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Поиск девайсов..." class="search-input">
       </div>
       
-      <button class="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition">
+      <button class="cart-button">
         🛒
-        @if (cart.count() > 0) {
-          <span class="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-            {{ cart.count() }}
-          </span>
-        }
+        <span class="cart-badge">3</span>
       </button>
     </div>
   </nav>
 
-  <div class="flex flex-1">
-    <aside class="w-64 bg-white border-r border-gray-200 p-6 hidden lg:block">
-      <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Категории</h3>
-      <ul class="space-y-2">
-        <li><button class="w-full text-left px-3 py-2 rounded-lg bg-blue-50 text-blue-700 font-semibold text-sm">Все товары</button></li>
-        <li><button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-600 text-sm">Smartphones</button></li>
-        <li><button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-600 text-sm">PC & Laptops</button></li>
-        <li><button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-gray-600 text-sm">Watches</button></li>
+  <div class="content-wrapper">
+    <aside class="sidebar">
+      <h3 class="sidebar-title">Категории</h3>
+      <ul class="category-list">
+        <li><button class="category-btn active">Все товары</button></li>
+        <li><button class="category-btn">Smartphones</button></li>
+        <li><button class="category-btn">PC & Laptops</button></li>
+        <li><button class="category-btn">Watches</button></li>
       </ul>
     </aside>
 
-    <main class="flex-1 p-8">
-      <div class="flex justify-between items-end mb-8">
-        <div>
-          <h2 class="text-2xl font-bold">Все смартфоны и гаджеты</h2>
-          <p class="text-gray-400 text-sm">Найдено {{ api.products().length }} позиций</p>
-        </div>
+    <main class="main-content">
+      <div class="page-header">
+        <h2 class="section-title">Все смартфоны и гаджеты</h2>
+        <p class="results-count">Найдено 12 позиций</p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-        @for (item of api.products(); track item.id) {
-          <div class="bg-white border border-gray-100 rounded-3xl p-5 hover:shadow-2xl hover:shadow-blue-100/50 transition-all group">
-            <div class="aspect-square bg-gray-50 rounded-2xl mb-4 flex items-center justify-center text-4xl group-hover:scale-105 transition-transform">
-              📱
-            </div>
-            
-            <div class="space-y-1">
-              <span class="text-[10px] font-bold text-blue-500 uppercase">{{ item.category }}</span>
-              <h3 class="font-bold text-gray-900 leading-tight">{{ item.name }}</h3>
-              <p class="text-xs text-gray-400">Продавец: {{ item.owner }}</p>
-            </div>
-
-            <div class="mt-6 flex items-center justify-between">
-              <span class="text-xl font-black text-gray-900">{{ item.price }} ₸</span>
-              <button 
-                (click)="cart.addToCart(item)"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-blue-200">
-                В корзину
-              </button>
-            </div>
+      <div class="product-grid">
+        <div class="product-card">
+          <div class="product-image-box">
+            <span class="emoji-icon">📱</span>
           </div>
-        }
-      </div>
+          
+          <div class="product-info">
+            <span class="product-category">Smartphones</span>
+            <h3 class="product-name">iPhone 15 Pro</h3>
+            <p class="product-owner">Продавец: Apple Store</p>
+          </div>
+
+          <div class="product-footer">
+            <span class="product-price">550 000 ₸</span>
+            <button class="add-to-cart-btn">В корзину</button>
+          </div>
+        </div>
+        </div>
     </main>
   </div>
 </div>
+</body>
+</html>
