@@ -1,5 +1,7 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { CartEntry, CartSummary, Product } from '../models';
+import { NotificationService } from '../shared/notifications/notification.service';
+import { extractApiError } from '../shared/ui-utils';
 import { ApiService } from './api';
 
 @Injectable({ providedIn: 'root' })
@@ -8,18 +10,20 @@ export class CartService {
   totalItems = signal(0);
   totalPrice = signal(0);
   loading = signal(false);
-  errorMessage = signal('');
 
   itemCount = computed(() => this.totalItems());
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+    private notifications: NotificationService
+  ) {}
 
   loadCart() {
     this.loading.set(true);
     this.api.getCart().subscribe({
       next: (cart) => this.applyCart(cart),
       error: () => {
-        this.errorMessage.set('Не удалось загрузить корзину.');
+        this.notifications.error('Не удалось загрузить корзину.');
         this.loading.set(false);
       },
     });
@@ -28,7 +32,7 @@ export class CartService {
   addToCart(product: Product) {
     this.api.addToCart(product.id).subscribe({
       next: (cart) => this.applyCart(cart),
-      error: () => this.errorMessage.set('Не удалось добавить товар в корзину.'),
+      error: () => this.notifications.error('Не удалось добавить товар в корзину.'),
     });
   }
 
@@ -52,14 +56,14 @@ export class CartService {
 
     this.api.updateCartItem(entry.id, nextQuantity).subscribe({
       next: (cart) => this.applyCart(cart),
-      error: () => this.errorMessage.set('Не удалось обновить корзину.'),
+      error: () => this.notifications.error('Не удалось обновить корзину.'),
     });
   }
 
   removeItem(itemId: number) {
     this.api.removeCartItem(itemId).subscribe({
       next: (cart) => this.applyCart(cart),
-      error: () => this.errorMessage.set('Не удалось удалить товар из корзины.'),
+      error: () => this.notifications.error('Не удалось удалить товар из корзины.'),
     });
   }
 
@@ -77,7 +81,7 @@ export class CartService {
         onSuccess?.(result.orders_created);
       },
       error: (error) => {
-        this.errorMessage.set(error?.error?.error || 'Не удалось оформить заказ.');
+        this.notifications.error(extractApiError(error) || 'Не удалось оформить заказ.');
       },
     });
   }
@@ -90,14 +94,12 @@ export class CartService {
     this.items.set([]);
     this.totalItems.set(0);
     this.totalPrice.set(0);
-    this.errorMessage.set('');
   }
 
   private applyCart(cart: CartSummary) {
     this.items.set(cart.items);
     this.totalItems.set(cart.total_items);
     this.totalPrice.set(cart.total_price);
-    this.errorMessage.set('');
     this.loading.set(false);
   }
 }

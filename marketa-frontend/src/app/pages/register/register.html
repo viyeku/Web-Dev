@@ -4,17 +4,13 @@
       <h1>Создайте профиль в Marketa.</h1>
     </div>
 
-    @if (errorMessage) {
-      <div class="error-message">{{ errorMessage }}</div>
-    }
-
     <div class="auth-grid two-up section-block">
       <label>
-        <span class="field-label">Username</span>
+        <span class="field-label">Логин</span>
         <input class="field-input" type="text" [(ngModel)]="form.username" />
       </label>
       <label>
-        <span class="field-label">Email</span>
+        <span class="field-label">Почта</span>
         <input class="field-input" type="email" [(ngModel)]="form.email" />
       </label>
       <label>

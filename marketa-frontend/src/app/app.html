@@ -1,4 +1,5 @@
 @if (isCheckingSession) {
+  <app-notification-host />
   <div class="auth-shell">
     <div class="empty-state">
       <h2>Проверяем вход...</h2>
@@ -6,6 +7,7 @@
   </div>
 } @else if (showAppShell) {
   <div class="shell">
+    <app-notification-host />
     <header class="shell-header">
       <a class="brand" routerLink="/products">MARKETA.</a>
 
@@ -37,8 +39,8 @@
 
       <div class="shell-actions">
         <a class="mini-stat" routerLink="/account">
-          <span>{{ auth.user()?.username || 'user' }}</span>
-          <strong>{{ auth.user()?.role === 'seller' ? 'seller' : 'buyer' }}</strong>
+          <span>{{ auth.user()?.username || 'Пользователь' }}</span>
+          <strong>{{ auth.user()?.role === 'seller' ? 'Продавец' : 'Покупатель' }}</strong>
         </a>
         <button class="ghost-button" type="button" (click)="logout()">Выйти</button>
       </div>
@@ -49,5 +51,6 @@
     </main>
   </div>
 } @else {
+  <app-notification-host />
   <router-outlet />
 }

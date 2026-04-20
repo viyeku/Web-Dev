@@ -1,0 +1,54 @@
+.notification-host {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  z-index: 2000;
+  display: grid;
+  width: min(460px, calc(100vw - 32px));
+  gap: 10px;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.notification-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid rgba(16, 33, 43, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 50px rgba(16, 33, 43, 0.16);
+  color: var(--ink-950);
+  pointer-events: auto;
+}
+
+.notification-card.is-success {
+  background: rgba(229, 245, 232, 0.96);
+}
+
+.notification-card.is-error {
+  background: rgba(255, 232, 219, 0.96);
+  color: #8b2e0c;
+}
+
+.notification-card.is-warning {
+  background: rgba(255, 243, 207, 0.96);
+}
+
+.notification-card.is-info {
+  background: rgba(231, 241, 248, 0.96);
+}
+
+.notification-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(16, 33, 43, 0.08);
+  color: inherit;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}

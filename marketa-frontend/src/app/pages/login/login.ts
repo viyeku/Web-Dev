@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { FavoritesService } from '../../services/favorites.service';
+import { NotificationService } from '../../shared/notifications/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -18,16 +19,14 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly cart = inject(CartService);
   private readonly favorites = inject(FavoritesService);
+  private readonly notifications = inject(NotificationService);
 
   loginData = {
     username: '',
     password: '',
   };
 
-  errorMessage = '';
-
   onLogin() {
-    this.errorMessage = '';
     this.auth.login(this.loginData).subscribe({
       next: () => {
         this.cart.loadCart();
@@ -36,16 +35,16 @@ export class LoginComponent {
       },
       error: (error) => {
         if (error.status === 0) {
-          this.errorMessage = 'Backend недоступен. Убедитесь, что Django запущен на http://localhost:8000.';
+          this.notifications.error('Backend недоступен. Убедитесь, что Django запущен на http://localhost:8000.');
           return;
         }
 
         if (error.status === 401) {
-          this.errorMessage = 'Неверный логин или пароль.';
+          this.notifications.error('Неверный логин или пароль.');
           return;
         }
 
-        this.errorMessage = 'Не удалось выполнить вход.';
+        this.notifications.error('Не удалось выполнить вход.');
       },
     });
   }

@@ -5,11 +5,12 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { AuthService } from './services/auth.service';
 import { CartService } from './services/cart.service';
 import { FavoritesService } from './services/favorites.service';
+import { NotificationHostComponent } from './shared/notifications/notification-host';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationHostComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   encapsulation: ViewEncapsulation.None,

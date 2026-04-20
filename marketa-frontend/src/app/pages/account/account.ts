@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { OrderHistoryEntry } from '../../models';
 import { ApiService } from '../../services/api';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../shared/notifications/notification.service';
 import { formatDateTime, formatPrice } from '../../shared/ui-utils';
 
 @Component({
@@ -19,6 +20,7 @@ export class AccountComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notifications = inject(NotificationService);
   readonly auth = inject(AuthService);
   readonly formatPrice = formatPrice;
   readonly formatDate = formatDateTime;
@@ -35,9 +37,6 @@ export class AccountComponent implements OnInit {
   sales: OrderHistoryEntry[] = [];
   loadingOrders = false;
   loadingSales = false;
-  message = '';
-  errorMessage = '';
-  historyErrorMessage = '';
 
   ngOnInit() {
     const user = this.auth.user();
@@ -58,16 +57,13 @@ export class AccountComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Не удалось загрузить профиль.';
+          this.notifications.error('Не удалось загрузить профиль.');
           this.cdr.detectChanges();
         },
       });
   }
 
   updateProfile() {
-    this.message = '';
-    this.errorMessage = '';
-
     this.auth
       .updateProfile({
         email: this.form.email,
@@ -77,18 +73,17 @@ export class AccountComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.message = 'Профиль обновлён.';
+          this.notifications.success('Профиль обновлён.');
           this.cdr.detectChanges();
         },
         error: () => {
-          this.errorMessage = 'Не удалось сохранить изменения.';
+          this.notifications.error('Не удалось сохранить изменения.');
           this.cdr.detectChanges();
         },
       });
   }
 
   private loadHistory() {
-    this.historyErrorMessage = '';
     this.loadingOrders = true;
     this.loadingSales = this.auth.canSell();
     this.cdr.detectChanges();
@@ -104,7 +99,7 @@ export class AccountComponent implements OnInit {
         },
         error: () => {
           this.loadingOrders = false;
-          this.historyErrorMessage = 'Не удалось загрузить историю заказов.';
+          this.notifications.error('Не удалось загрузить историю заказов.');
           this.cdr.detectChanges();
         },
       });
@@ -124,7 +119,7 @@ export class AccountComponent implements OnInit {
         },
         error: () => {
           this.loadingSales = false;
-          this.historyErrorMessage = 'Не удалось загрузить историю продаж.';
+          this.notifications.error('Не удалось загрузить историю продаж.');
           this.cdr.detectChanges();
         },
       });

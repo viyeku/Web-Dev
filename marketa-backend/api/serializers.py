@@ -29,12 +29,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def validate_price(self, value):
         if value < 0:
-            raise serializers.ValidationError('Price cannot be negative.')
+            raise serializers.ValidationError('Цена не может быть меньше нуля.')
         return value
 
     def validate_quantity(self, value):
         if value < 0:
-            raise serializers.ValidationError('Quantity cannot be negative.')
+            raise serializers.ValidationError('Количество не может быть меньше нуля.')
         return value
 
     def get_image_url(self, obj):
@@ -58,7 +58,31 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=5)
+    username = serializers.CharField(
+        error_messages={
+            'blank': 'Логин не может быть пустым.',
+            'required': 'Введите логин.',
+            'invalid': 'Логин может содержать только буквы, цифры и символы @ . + - _',
+        }
+    )
+    email = serializers.EmailField(
+        required=False,
+        allow_blank=True,
+        error_messages={
+            'invalid': 'Введите корректную почту.',
+        }
+    )
+    first_name = serializers.CharField(required=False, allow_blank=True)
+    last_name = serializers.CharField(required=False, allow_blank=True)
+    password = serializers.CharField(
+        write_only=True,
+        min_length=5,
+        error_messages={
+            'blank': 'Пароль не может быть пустым.',
+            'required': 'Введите пароль.',
+            'min_length': 'Пароль должен быть не короче 5 символов.',
+        }
+    )
     role = serializers.ChoiceField(choices=UserProfile.ROLE_CHOICES, default=UserProfile.BUYER)
 
     class Meta:
@@ -67,7 +91,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError('A user with this username already exists.')
+            raise serializers.ValidationError('Пользователь с таким логином уже существует.')
         return value
 
     def create(self, validated_data):

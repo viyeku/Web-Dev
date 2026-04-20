@@ -1,5 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { FavoriteEntry, Product } from '../models';
+import { NotificationService } from '../shared/notifications/notification.service';
 import { ApiService } from './api';
 
 @Injectable({ providedIn: 'root' })
@@ -8,17 +9,18 @@ export class FavoritesService {
   ids = computed(() => this.favorites().map((favorite) => favorite.product.id));
   products = computed(() => this.favorites().map((favorite) => favorite.product));
   count = computed(() => this.favorites().length);
-  errorMessage = signal('');
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+    private notifications: NotificationService
+  ) {}
 
   loadFavorites() {
     this.api.listFavorites().subscribe({
       next: (favorites) => {
         this.favorites.set(favorites);
-        this.errorMessage.set('');
       },
-      error: () => this.errorMessage.set('Не удалось загрузить избранное.'),
+      error: () => this.notifications.error('Не удалось загрузить избранное.'),
     });
   }
 
@@ -29,9 +31,8 @@ export class FavoritesService {
       this.api.removeFavorite(productId).subscribe({
         next: () => {
           this.favorites.set(this.favorites().filter((favorite) => favorite.product.id !== productId));
-          this.errorMessage.set('');
         },
-        error: () => this.errorMessage.set('Не удалось убрать товар из избранного.'),
+        error: () => this.notifications.error('Не удалось убрать товар из избранного.'),
       });
       return;
     }
@@ -39,9 +40,8 @@ export class FavoritesService {
     this.api.addFavorite(productId).subscribe({
       next: (favorite) => {
         this.favorites.set([...this.favorites(), favorite]);
-        this.errorMessage.set('');
       },
-      error: () => this.errorMessage.set('Не удалось добавить товар в избранное.'),
+      error: () => this.notifications.error('Не удалось добавить товар в избранное.'),
     });
   }
 
@@ -51,6 +51,5 @@ export class FavoritesService {
 
   clearLocalState() {
     this.favorites.set([]);
-    this.errorMessage.set('');
   }
 }

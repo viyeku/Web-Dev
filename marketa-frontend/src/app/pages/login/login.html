@@ -4,14 +4,10 @@
       <h1>Войдите в Marketa.</h1>
     </div>
 
-    @if (errorMessage) {
-      <div class="error-message">{{ errorMessage }}</div>
-    }
-
     <div class="auth-grid section-block">
       <label>
         <span class="field-label">Логин</span>
-        <input class="field-input" type="text" [(ngModel)]="loginData.username" placeholder="Введите username" />
+        <input class="field-input" type="text" [(ngModel)]="loginData.username" placeholder="Введите логин" />
       </label>
 
       <label>

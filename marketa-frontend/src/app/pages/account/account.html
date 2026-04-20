@@ -2,18 +2,10 @@
   <h1 class="section-title">Личный кабинет</h1>
 </section>
 
-@if (message) {
-  <div class="message section-block">{{ message }}</div>
-}
-
-@if (errorMessage) {
-  <div class="error-message section-block">{{ errorMessage }}</div>
-}
-
 <section class="glass-card section-block">
   <div class="auth-grid two-up">
     <label>
-      <span class="field-label">Username</span>
+      <span class="field-label">Логин</span>
       <input class="field-input" type="text" [(ngModel)]="form.username" readonly />
     </label>
     <label>
@@ -21,7 +13,7 @@
       <input class="field-input" type="text" [value]="form.role === 'seller' ? 'Продавец' : 'Покупатель'" readonly />
     </label>
     <label>
-      <span class="field-label">Email</span>
+      <span class="field-label">Почта</span>
       <input class="field-input" type="email" [(ngModel)]="form.email" />
     </label>
     <label>
@@ -38,10 +30,6 @@
     <button class="primary-button" type="button" (click)="updateProfile()">Сохранить</button>
   </div>
 </section>
-
-@if (historyErrorMessage) {
-  <div class="error-message section-block">{{ historyErrorMessage }}</div>
-}
 
 <section class="split-layout section-block">
   <div class="glass-card">

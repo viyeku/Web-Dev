@@ -1,0 +1,1123 @@
+{
+  "info": {
+    "_postman_id": "f7dc8b2f-3a92-44e2-a7f4-marketa-api",
+    "name": "Marketa API",
+    "description": "Postman collection for the Marketa marketplace Django REST API. Use Register or Login first; their test scripts save access and refresh tokens into collection variables.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "refresh_token",
+      "value": ""
+    },
+    {
+      "key": "product_id",
+      "value": "1"
+    },
+    {
+      "key": "category_id",
+      "value": "1"
+    },
+    {
+      "key": "cart_item_id",
+      "value": "1"
+    },
+    {
+      "key": "favorite_product_id",
+      "value": "1"
+    },
+    {
+      "key": "review_product_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "API Root",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Добро пожаловать в Marketa API\",\n  \"version\": \"1.0\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Marketplace Stats",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/stats/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stats",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"total_products\": 55,\n  \"active_products\": 55,\n  \"total_categories\": 5,\n  \"average_price\": 189990.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Categories",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Smartphones\",\n    \"products_count\": 10\n  },\n  {\n    \"id\": 4,\n    \"name\": \"Laptops\",\n    \"products_count\": 10\n  }\n]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', data.access);",
+                  "  pm.collectionVariables.set('refresh_token', data.refresh);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"postman_seller\",\n  \"email\": \"postman@example.com\",\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Seller\",\n  \"password\": \"12345\",\n  \"role\": \"seller\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/register/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "register",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"access\": \"<jwt access token>\",\n  \"refresh\": \"<jwt refresh token>\",\n  \"user\": {\n    \"id\": 10,\n    \"username\": \"postman_seller\",\n    \"email\": \"postman@example.com\",\n    \"first_name\": \"Postman\",\n    \"last_name\": \"Seller\",\n    \"full_name\": \"Postman Seller\",\n    \"role\": \"seller\",\n    \"can_sell\": true,\n    \"date_joined\": \"2026-04-20T12:00:00Z\"\n  }\n}"
+            },
+            {
+              "name": "400 Validation Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"username\": [\n    \"Пользователь с таким логином уже существует.\"\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', data.access);",
+                  "  pm.collectionVariables.set('refresh_token', data.refresh);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"tulki\",\n  \"password\": \"12345\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"refresh\": \"<jwt refresh token>\",\n  \"access\": \"<jwt access token>\"\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "body": "{\n  \"detail\": \"No active account found with the given credentials\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set('access_token', pm.response.json().access);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/token/refresh/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "token",
+                "refresh",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"access\": \"<new jwt access token>\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/logout/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "logout",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "205 Reset Content",
+              "status": "Reset Content",
+              "code": 205,
+              "body": "{\n  \"detail\": \"Выход выполнен.\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/me/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"username\": \"tulki\",\n  \"email\": \"tulki@example.com\",\n  \"first_name\": \"Tulki\",\n  \"last_name\": \"Seller\",\n  \"full_name\": \"Tulki Seller\",\n  \"role\": \"seller\",\n  \"can_sell\": true,\n  \"date_joined\": \"2026-04-20T10:00:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Current User",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new-email@example.com\",\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/me/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "me",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"username\": \"tulki\",\n  \"email\": \"new-email@example.com\",\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"full_name\": \"Updated Name\",\n  \"role\": \"seller\",\n  \"can_sell\": true,\n  \"date_joined\": \"2026-04-20T10:00:00Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/?is_active=true&ordering=-created_at",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "is_active",
+                  "value": "true"
+                },
+                {
+                  "key": "ordering",
+                  "value": "-created_at"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"iPhone 15 128GB\",\n    \"description\": \"Смартфон с ярким OLED-дисплеем, быстрым процессором и камерой.\",\n    \"price\": \"389990.00\",\n    \"quantity\": 12,\n    \"image\": \"/media/products/real/tulki-iphone-15-128gb.jpg\",\n    \"image_url\": \"http://localhost:8000/media/products/real/tulki-iphone-15-128gb.jpg\",\n    \"is_active\": true,\n    \"is_deleted\": false,\n    \"category\": 1,\n    \"category_name\": \"Smartphones\",\n    \"owner\": 1,\n    \"owner_username\": \"tulki\",\n    \"created_at\": \"2026-04-20T10:30:00Z\",\n    \"sold_quantity\": 2,\n    \"sold_value\": 779980.0\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/?search=iphone&category={{category_id}}&ordering=price&is_active=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "iphone"
+                },
+                {
+                  "key": "category",
+                  "value": "{{category_id}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "price"
+                },
+                {
+                  "key": "is_active",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"iPhone 15 128GB\",\n    \"price\": \"389990.00\",\n    \"quantity\": 12,\n    \"category\": 1,\n    \"category_name\": \"Smartphones\",\n    \"owner_username\": \"tulki\",\n    \"image_url\": \"http://localhost:8000/media/products/real/tulki-iphone-15-128gb.jpg\",\n    \"is_active\": true,\n    \"is_deleted\": false,\n    \"sold_quantity\": 2,\n    \"sold_value\": 779980.0,\n    \"description\": \"Смартфон с ярким OLED-дисплеем.\",\n    \"image\": \"/media/products/real/tulki-iphone-15-128gb.jpg\",\n    \"owner\": 1,\n    \"created_at\": \"2026-04-20T10:30:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Product",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/{{product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "{{product_id}}",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"name\": \"iPhone 15 128GB\",\n  \"description\": \"Смартфон с ярким OLED-дисплеем, быстрым процессором и камерой.\",\n  \"price\": \"389990.00\",\n  \"quantity\": 12,\n  \"image\": \"/media/products/real/tulki-iphone-15-128gb.jpg\",\n  \"image_url\": \"http://localhost:8000/media/products/real/tulki-iphone-15-128gb.jpg\",\n  \"is_active\": true,\n  \"is_deleted\": false,\n  \"category\": 1,\n  \"category_name\": \"Smartphones\",\n  \"owner\": 1,\n  \"owner_username\": \"tulki\",\n  \"created_at\": \"2026-04-20T10:30:00Z\",\n  \"sold_quantity\": 2,\n  \"sold_value\": 779980.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Legacy Product Detail",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products-detail/{{product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products-detail",
+                "{{product_id}}",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 1,\n  \"name\": \"iPhone 15 128GB\",\n  \"price\": \"389990.00\",\n  \"quantity\": 12,\n  \"category_name\": \"Smartphones\",\n  \"owner_username\": \"tulki\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Postman Demo Product",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Demo product created from Postman.",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "19990",
+                  "type": "text"
+                },
+                {
+                  "key": "quantity",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "{{category_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "is_active",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": [],
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/products/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"id\": 99,\n  \"name\": \"Postman Demo Product\",\n  \"description\": \"Demo product created from Postman.\",\n  \"price\": \"19990.00\",\n  \"quantity\": 5,\n  \"image\": null,\n  \"image_url\": null,\n  \"is_active\": true,\n  \"is_deleted\": false,\n  \"category\": 1,\n  \"category_name\": \"Smartphones\",\n  \"owner\": 1,\n  \"owner_username\": \"tulki\",\n  \"created_at\": \"2026-04-20T13:00:00Z\",\n  \"sold_quantity\": 0,\n  \"sold_value\": 0.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Postman Product\",\n  \"description\": \"Updated description.\",\n  \"price\": 24990,\n  \"quantity\": 8,\n  \"category\": {{category_id}},\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products/{{product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "{{product_id}}",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"id\": 99,\n  \"name\": \"Updated Postman Product\",\n  \"description\": \"Updated description.\",\n  \"price\": \"24990.00\",\n  \"quantity\": 8,\n  \"image\": null,\n  \"image_url\": null,\n  \"is_active\": true,\n  \"is_deleted\": false,\n  \"category\": 1,\n  \"category_name\": \"Smartphones\",\n  \"owner\": 1,\n  \"owner_username\": \"tulki\",\n  \"created_at\": \"2026-04-20T13:00:00Z\",\n  \"sold_quantity\": 0,\n  \"sold_value\": 0.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Soft Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/{{product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "{{product_id}}",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "204 No Content",
+              "status": "No Content",
+              "code": 204,
+              "body": ""
+            }
+          ]
+        },
+        {
+          "name": "My Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/mine/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "mine",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"iPhone 15 128GB\",\n    \"price\": \"389990.00\",\n    \"quantity\": 12,\n    \"category_name\": \"Smartphones\",\n    \"owner_username\": \"tulki\",\n    \"is_active\": true,\n    \"is_deleted\": false,\n    \"sold_quantity\": 2,\n    \"sold_value\": 779980.0,\n    \"description\": \"Смартфон с ярким OLED-дисплеем.\",\n    \"image\": \"/media/products/real/tulki-iphone-15-128gb.jpg\",\n    \"image_url\": \"http://localhost:8000/media/products/real/tulki-iphone-15-128gb.jpg\",\n    \"category\": 1,\n    \"owner\": 1,\n    \"created_at\": \"2026-04-20T10:30:00Z\"\n  }\n]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cart/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"items\": [\n    {\n      \"id\": 1,\n      \"product\": {\n        \"id\": 1,\n        \"name\": \"iPhone 15 128GB\",\n        \"price\": \"389990.00\",\n        \"quantity\": 12,\n        \"category_name\": \"Smartphones\",\n        \"owner_username\": \"tulki\"\n      },\n      \"quantity\": 1,\n      \"total_price\": 389990.0\n    }\n  ],\n  \"total_items\": 1,\n  \"total_price\": 389990.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add To Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": {{product_id}},\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart/add/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart",
+                "add",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"items\": [\n    {\n      \"id\": 1,\n      \"product\": {\n        \"id\": 1,\n        \"name\": \"iPhone 15 128GB\",\n        \"price\": \"389990.00\"\n      },\n      \"quantity\": 1,\n      \"total_price\": 389990.0\n    }\n  ],\n  \"total_items\": 1,\n  \"total_price\": 389990.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Cart Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cart/items/{{cart_item_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "{{cart_item_id}}",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"items\": [\n    {\n      \"id\": 1,\n      \"product\": {\n        \"id\": 1,\n        \"name\": \"iPhone 15 128GB\",\n        \"price\": \"389990.00\"\n      },\n      \"quantity\": 2,\n      \"total_price\": 779980.0\n    }\n  ],\n  \"total_items\": 2,\n  \"total_price\": 779980.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove Cart Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cart/items/{{cart_item_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "{{cart_item_id}}",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"items\": [],\n  \"total_items\": 0,\n  \"total_price\": 0.0\n}"
+            }
+          ]
+        },
+        {
+          "name": "Checkout Cart",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cart/checkout/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cart",
+                "checkout",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"orders_created\": 1,\n  \"cart\": {\n    \"items\": [],\n    \"total_items\": 0,\n    \"total_price\": 0.0\n  }\n}"
+            },
+            {
+              "name": "400 Not Enough Stock",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"error\": \"Недостаточно товара на складе: PlayStation 5 Slim.\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "List Favorites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/favorites/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"product\": {\n      \"id\": 1,\n      \"name\": \"iPhone 15 128GB\",\n      \"price\": \"389990.00\",\n      \"category_name\": \"Smartphones\",\n      \"owner_username\": \"tulki\"\n    },\n    \"created_at\": \"2026-04-20T12:30:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Add Favorite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": {{favorite_product_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/favorites/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"id\": 1,\n  \"product\": {\n    \"id\": 1,\n    \"name\": \"iPhone 15 128GB\",\n    \"price\": \"389990.00\",\n    \"category_name\": \"Smartphones\",\n    \"owner_username\": \"tulki\"\n  },\n  \"created_at\": \"2026-04-20T12:30:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove Favorite",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/favorites/{{favorite_product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "favorites",
+                "{{favorite_product_id}}",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "204 No Content",
+              "status": "No Content",
+              "code": 204,
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Orders and Sales",
+      "item": [
+        {
+          "name": "Order History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"product\": {\n      \"id\": 1,\n      \"name\": \"iPhone 15 128GB\",\n      \"price\": \"389990.00\",\n      \"category_name\": \"Smartphones\",\n      \"owner_username\": \"tulki\"\n    },\n    \"count\": 1,\n    \"unit_price\": \"389990.00\",\n    \"created_at\": \"2026-04-20T13:10:00Z\",\n    \"buyer_username\": \"kultu\",\n    \"seller_username\": \"tulki\",\n    \"total_price\": 389990.0\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Sales History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sales/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "sales",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"product\": {\n      \"id\": 1,\n      \"name\": \"iPhone 15 128GB\",\n      \"price\": \"389990.00\",\n      \"category_name\": \"Smartphones\",\n      \"owner_username\": \"tulki\"\n    },\n    \"count\": 1,\n    \"unit_price\": \"389990.00\",\n    \"created_at\": \"2026-04-20T13:10:00Z\",\n    \"buyer_username\": \"kultu\",\n    \"seller_username\": \"tulki\",\n    \"total_price\": 389990.0\n  }\n]"
+            },
+            {
+              "name": "403 Buyer Cannot View Sales",
+              "status": "Forbidden",
+              "code": 403,
+              "body": "{\n  \"error\": \"История продаж доступна только продавцам.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Seller Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/seller/stats/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "seller",
+                "stats",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"products_count\": 25,\n  \"sold_quantity\": 3,\n  \"sold_value\": 1169970.0,\n  \"products\": [\n    {\n      \"id\": 1,\n      \"name\": \"iPhone 15 128GB\",\n      \"price\": \"389990.00\",\n      \"quantity\": 12,\n      \"category_name\": \"Smartphones\",\n      \"owner_username\": \"tulki\",\n      \"sold_quantity\": 2,\n      \"sold_value\": 779980.0\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "List Product Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/{{review_product_id}}/reviews/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "{{review_product_id}}",
+                "reviews",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "[\n  {\n    \"id\": 1,\n    \"product\": 1,\n    \"author\": 3,\n    \"author_name\": \"kultu\",\n    \"rating\": 5,\n    \"comment\": \"Отличный товар, всё работает стабильно.\",\n    \"created_at\": \"2026-04-20T13:20:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Create Product Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Отличный товар, всё работает стабильно.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products/{{review_product_id}}/reviews/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "products",
+                "{{review_product_id}}",
+                "reviews",
+                ""
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"id\": 1,\n  \"product\": 1,\n  \"author\": 3,\n  \"author_name\": \"kultu\",\n  \"rating\": 5,\n  \"comment\": \"Отличный товар, всё работает стабильно.\",\n  \"created_at\": \"2026-04-20T13:20:00Z\"\n}"
+            },
+            {
+              "name": "400 Validation Error",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"rating\": [\n    \"Ensure this value is less than or equal to 5.\"\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

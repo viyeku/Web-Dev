@@ -2,14 +2,6 @@
   <h1 class="section-title">Корзина</h1>
 </section>
 
-@if (message) {
-  <div class="message section-block">{{ message }}</div>
-}
-
-@if (cart.errorMessage()) {
-  <div class="error-message section-block">{{ cart.errorMessage() }}</div>
-}
-
 <section class="split-layout section-block">
   <div class="glass-card">
     @if (!cart.items().length) {

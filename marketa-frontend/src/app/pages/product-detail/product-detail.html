@@ -62,14 +62,6 @@
       <span class="eyebrow">Отзывы</span>
       <h2 style="margin-top: 0;">Отзывы покупателей</h2>
 
-      @if (reviewMessage) {
-        <div class="message">{{ reviewMessage }}</div>
-      }
-
-      @if (reviewErrorMessage) {
-        <div class="error-message">{{ reviewErrorMessage }}</div>
-      }
-
       @if (loadingReviews) {
         <div class="empty-state section-block">
           <h2>Загружаем отзывы...</h2>

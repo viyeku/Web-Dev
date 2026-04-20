@@ -15,7 +15,7 @@ from ..serializers import (
 @api_view(['GET'])
 def api_root(request):
     return Response({
-        "message": "Welcome to Marketa API",
+        "message": "Добро пожаловать в Marketa API",
         "version": "1.0"
     })
 
@@ -28,9 +28,9 @@ def logout_view(request):
         token = RefreshToken(refresh_token)
         # Отправляем его в черный список
         token.blacklist()
-        return Response({"detail": "Successfully logged out."}, status=status.HTTP_205_RESET_CONTENT)
+        return Response({"detail": "Выход выполнен."}, status=status.HTTP_205_RESET_CONTENT)
     except Exception as e:
-        return Response({"error": "Invalid or missing token"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Сессия устарела. Войдите снова."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -91,15 +91,15 @@ def cart_add_view(request):
     try:
         quantity = int(request.data.get('quantity', 1))
     except (TypeError, ValueError):
-        return Response({"error": "Quantity must be a number."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Количество должно быть числом."}, status=status.HTTP_400_BAD_REQUEST)
 
     if quantity < 1:
-        return Response({"error": "Quantity must be at least 1."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Количество должно быть не меньше 1."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         product = Product.objects.get(pk=product_id, is_active=True, is_deleted=False)
     except Product.DoesNotExist:
-        return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Товар не найден."}, status=status.HTTP_404_NOT_FOUND)
 
     cart = get_user_cart(request.user)
     item, created = CartItem.objects.get_or_create(
@@ -124,7 +124,7 @@ def cart_item_view(request, item_id):
     try:
         item = cart.items.get(pk=item_id)
     except CartItem.DoesNotExist:
-        return Response({"error": "Cart item not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Позиция корзины не найдена."}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'DELETE':
         item.delete()
@@ -134,7 +134,7 @@ def cart_item_view(request, item_id):
     try:
         quantity = int(request.data.get('quantity', item.quantity))
     except (TypeError, ValueError):
-        return Response({"error": "Quantity must be a number."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Количество должно быть числом."}, status=status.HTTP_400_BAD_REQUEST)
     if quantity < 1:
         item.delete()
         touch_cart(cart)
@@ -153,14 +153,14 @@ def cart_checkout_view(request):
     items = list(cart.items.select_related('product'))
 
     if not items:
-        return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Корзина пуста."}, status=status.HTTP_400_BAD_REQUEST)
 
     with transaction.atomic():
         for item in items:
             product = item.product
             if product.quantity < item.quantity:
                 return Response(
-                    {"error": f"Not enough stock for {product.name}."},
+                    {"error": f"Недостаточно товара на складе: {product.name}."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -198,7 +198,7 @@ def favorites_view(request):
     try:
         product = Product.objects.get(pk=product_id, is_active=True, is_deleted=False)
     except Product.DoesNotExist:
-        return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Товар не найден."}, status=status.HTTP_404_NOT_FOUND)
 
     favorite, created = Favorite.objects.get_or_create(user=request.user, product=product)
     serializer = FavoriteSerializer(favorite, context={'request': request})
@@ -225,7 +225,7 @@ def order_history_view(request):
 @permission_classes([IsAuthenticated])
 def sales_history_view(request):
     if not is_seller(request.user):
-        return Response({"error": "Only sellers can view sales history."}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"error": "История продаж доступна только продавцам."}, status=status.HTTP_403_FORBIDDEN)
 
     orders = Order.objects.filter(product__owner=request.user).select_related(
         'user', 'product', 'product__category', 'product__owner'
@@ -239,7 +239,7 @@ def product_reviews_view(request, product_id):
     try:
         product = Product.objects.get(pk=product_id, is_deleted=False)
     except Product.DoesNotExist:
-        return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Товар не найден."}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
         reviews = Review.objects.filter(product=product).select_related('author').order_by('-created_at')
@@ -255,7 +255,7 @@ def product_reviews_view(request, product_id):
 @permission_classes([IsAuthenticated])
 def seller_stats_view(request):
     if not is_seller(request.user):
-        return Response({"error": "Only sellers can view sales stats."}, status=status.HTTP_403_FORBIDDEN)
+        return Response({"error": "Статистика продаж доступна только продавцам."}, status=status.HTTP_403_FORBIDDEN)
 
     products = Product.objects.filter(owner=request.user, is_deleted=False)
     orders = Order.objects.filter(product__owner=request.user).select_related('product')

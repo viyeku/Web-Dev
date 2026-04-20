@@ -1,0 +1,12 @@
+@if (notifications.notifications().length) {
+  <div class="notification-host" aria-live="polite" aria-atomic="true">
+    @for (notification of notifications.notifications(); track notification.id) {
+      <div class="notification-card" [class]="'notification-card is-' + notification.kind">
+        <span>{{ notification.message }}</span>
+        <button type="button" class="notification-close" (click)="notifications.dismiss(notification.id)" aria-label="Закрыть">
+          ×
+        </button>
+      </div>
+    }
+  </div>
+}

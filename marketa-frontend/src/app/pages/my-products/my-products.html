@@ -1,7 +1,3 @@
-@if (errorMessage) {
-  <div class="my-products-toast error-message">{{ errorMessage }}</div>
-}
-
 @if (!auth.canSell()) {
   <div class="empty-state">
     <h2>Этот раздел только для продавцов</h2>
@@ -26,10 +22,6 @@
           <span class="muted">сумма продаж</span>
         </div>
       </div>
-
-      @if (message) {
-        <div class="message section-block">{{ message }}</div>
-      }
 
       <div class="table-list section-block">
         @if (loading) {

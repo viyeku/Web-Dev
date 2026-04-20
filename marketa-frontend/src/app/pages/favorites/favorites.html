@@ -2,14 +2,6 @@
   <h1 class="section-title">Избранные товары</h1>
 </section>
 
-@if (favorites.errorMessage()) {
-  <div class="error-message section-block">{{ favorites.errorMessage() }}</div>
-}
-
-@if (cart.errorMessage()) {
-  <div class="error-message section-block">{{ cart.errorMessage() }}</div>
-}
-
 <section class="section-block">
   @if (!favorites.products().length) {
     <div class="empty-state favorites-empty">

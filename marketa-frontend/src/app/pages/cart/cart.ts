@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { NotificationService } from '../../shared/notifications/notification.service';
 import { formatPrice } from '../../shared/ui-utils';
 
 @Component({
@@ -13,18 +14,16 @@ import { formatPrice } from '../../shared/ui-utils';
 })
 export class CartComponent implements OnInit {
   readonly cart = inject(CartService);
+  private readonly notifications = inject(NotificationService);
   readonly formatPrice = formatPrice;
-  message = '';
 
   ngOnInit() {
     this.cart.loadCart();
   }
 
   checkout() {
-    this.message = '';
     this.cart.checkout((ordersCreated) => {
-      this.message = `Заказ оформлен. Создано позиций: ${ordersCreated}.`;
+      this.notifications.success(`Заказ оформлен. Создано позиций: ${ordersCreated}.`);
     });
   }
-
 }

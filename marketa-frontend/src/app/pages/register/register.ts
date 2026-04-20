@@ -5,6 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 import { FavoritesService } from '../../services/favorites.service';
+import { NotificationService } from '../../shared/notifications/notification.service';
+import { extractApiError } from '../../shared/ui-utils';
 
 @Component({
   selector: 'app-register',
@@ -18,6 +20,7 @@ export class RegisterComponent {
   private readonly router = inject(Router);
   private readonly cart = inject(CartService);
   private readonly favorites = inject(FavoritesService);
+  private readonly notifications = inject(NotificationService);
 
   form = {
     username: '',
@@ -28,10 +31,7 @@ export class RegisterComponent {
     role: 'buyer' as const,
   };
 
-  errorMessage = '';
-
   submit() {
-    this.errorMessage = '';
     this.auth.register(this.form).subscribe({
       next: () => {
         this.cart.loadCart();
@@ -40,15 +40,11 @@ export class RegisterComponent {
       },
       error: (error) => {
         if (error.status === 0) {
-          this.errorMessage = 'Backend недоступен. Убедитесь, что Django запущен на http://localhost:8000.';
+          this.notifications.error('Backend недоступен. Убедитесь, что Django запущен на http://localhost:8000.');
           return;
         }
 
-        this.errorMessage =
-          error?.error?.username?.[0] ||
-          error?.error?.email?.[0] ||
-          error?.error?.password?.[0] ||
-          'Не удалось зарегистрироваться.';
+        this.notifications.error(extractApiError(error) || 'Не удалось зарегистрироваться.');
       },
     });
   }

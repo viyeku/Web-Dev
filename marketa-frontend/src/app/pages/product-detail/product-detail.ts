@@ -9,6 +9,7 @@ import { Product, ReviewEntry } from '../../models';
 import { ApiService } from '../../services/api';
 import { CartService } from '../../services/cart.service';
 import { FavoritesService } from '../../services/favorites.service';
+import { NotificationService } from '../../shared/notifications/notification.service';
 import { formatDateTime, formatPrice, productImageUrl } from '../../shared/ui-utils';
 
 @Component({
@@ -25,6 +26,7 @@ export class ProductDetailComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notifications = inject(NotificationService);
   readonly cart = inject(CartService);
   readonly favorites = inject(FavoritesService);
   readonly formatPrice = formatPrice;
@@ -37,8 +39,6 @@ export class ProductDetailComponent implements OnInit {
   loadingReviews = false;
   savingReview = false;
   errorMessage = '';
-  reviewErrorMessage = '';
-  reviewMessage = '';
   reviewForm = {
     rating: 5,
     comment: '',
@@ -88,17 +88,14 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    this.reviewMessage = '';
-    this.reviewErrorMessage = '';
-
     if (this.reviewForm.rating < 1 || this.reviewForm.rating > 5) {
-      this.reviewErrorMessage = 'Оценка должна быть от 1 до 5.';
+      this.notifications.error('Оценка должна быть от 1 до 5.');
       this.cdr.detectChanges();
       return;
     }
 
     if (!this.reviewForm.comment.trim()) {
-      this.reviewErrorMessage = 'Напишите текст отзыва.';
+      this.notifications.error('Напишите текст отзыва.');
       this.cdr.detectChanges();
       return;
     }
@@ -116,12 +113,12 @@ export class ProductDetailComponent implements OnInit {
         next: (review) => {
           this.reviews = [review, ...this.reviews];
           this.reviewForm = { rating: 5, comment: '' };
-          this.reviewMessage = 'Отзыв добавлен.';
+          this.notifications.success('Отзыв добавлен.');
           this.savingReview = false;
           this.cdr.detectChanges();
         },
         error: () => {
-          this.reviewErrorMessage = 'Не удалось добавить отзыв.';
+          this.notifications.error('Не удалось добавить отзыв.');
           this.savingReview = false;
           this.cdr.detectChanges();
         },
@@ -139,7 +136,6 @@ export class ProductDetailComponent implements OnInit {
 
   private loadReviews(productId: number) {
     this.loadingReviews = true;
-    this.reviewErrorMessage = '';
     this.cdr.detectChanges();
 
     this.api
@@ -152,7 +148,7 @@ export class ProductDetailComponent implements OnInit {
           this.cdr.detectChanges();
         },
         error: () => {
-          this.reviewErrorMessage = 'Не удалось загрузить отзывы.';
+          this.notifications.error('Не удалось загрузить отзывы.');
           this.loadingReviews = false;
           this.cdr.detectChanges();
         },

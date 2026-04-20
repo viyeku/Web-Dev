@@ -53,7 +53,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         if not is_seller(self.request.user):
-            raise PermissionDenied('Only sellers can publish products.')
+            raise PermissionDenied('Только продавцы могут публиковать товары.')
 
         serializer.save(owner=self.request.user)
 

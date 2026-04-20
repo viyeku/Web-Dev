@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { Category, Product, ProductCreatePayload, SellerStats } from '../../models';
 import { ApiService } from '../../services/api';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../shared/notifications/notification.service';
 import {
   extractApiError,
   formatPrice,
@@ -39,6 +40,7 @@ export class MyProductsComponent implements OnInit {
   private readonly api = inject(ApiService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notifications = inject(NotificationService);
   readonly auth = inject(AuthService);
   readonly formatPrice = formatPrice;
   readonly productImageUrl = productImageUrl;
@@ -48,8 +50,6 @@ export class MyProductsComponent implements OnInit {
   stats: SellerStats | null = null;
   selectedImage: File | null = null;
   imagePreview = '';
-  message = '';
-  errorMessage = '';
   saving = false;
   loading = false;
   editingProductId: number | null = null;
@@ -59,7 +59,6 @@ export class MyProductsComponent implements OnInit {
 
   private lastValidCreateForm = { ...this.form };
   private lastValidEditForm: ProductEditForm | null = null;
-  private errorTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit() {
     if (!this.auth.canSell()) {
@@ -91,7 +90,6 @@ export class MyProductsComponent implements OnInit {
           this.stats = stats;
           this.products = stats.products;
           this.loading = false;
-          this.errorMessage = '';
           this.cdr.detectChanges();
         },
         error: () => {
@@ -170,9 +168,6 @@ export class MyProductsComponent implements OnInit {
   }
 
   createProduct() {
-    this.message = '';
-    this.errorMessage = '';
-
     if (!this.form.name.trim()) {
       this.showError('название не может быть пустым');
       return;
@@ -204,7 +199,7 @@ export class MyProductsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (createdProduct) => {
-          this.message = 'Товар создан.';
+          this.notifications.success('Товар создан.');
           this.form = this.getEmptyForm();
           this.lastValidCreateForm = { ...this.form };
           this.selectedImage = null;
@@ -233,8 +228,6 @@ export class MyProductsComponent implements OnInit {
   }
 
   startEdit(product: Product) {
-    this.message = '';
-    this.errorMessage = '';
     this.editingProductId = product.id;
     this.editForm = {
       id: product.id,
@@ -262,9 +255,6 @@ export class MyProductsComponent implements OnInit {
     if (!this.editForm) {
       return;
     }
-
-    this.message = '';
-    this.errorMessage = '';
 
     if (!this.editForm.name.trim()) {
       this.showError('название не может быть пустым');
@@ -300,8 +290,6 @@ export class MyProductsComponent implements OnInit {
       return;
     }
 
-    this.message = '';
-    this.errorMessage = '';
     this.updatingProductIds = new Set(this.updatingProductIds).add(product.id);
     this.cdr.detectChanges();
 
@@ -323,7 +311,7 @@ export class MyProductsComponent implements OnInit {
             this.cancelEdit();
           }
 
-          this.message = 'Товар удалён. История заказов и продаж сохранена.';
+          this.notifications.success('Товар удалён. История заказов и продаж сохранена.');
           this.clearUpdating(product.id);
         },
         error: (error) => {
@@ -344,8 +332,6 @@ export class MyProductsComponent implements OnInit {
     image?: File | null,
     onSuccess?: () => void
   ) {
-    this.message = '';
-    this.errorMessage = '';
     this.updatingProductIds = new Set(this.updatingProductIds).add(productId);
     this.cdr.detectChanges();
 
@@ -361,7 +347,7 @@ export class MyProductsComponent implements OnInit {
                 products: this.stats.products.map((product) => (product.id === productId ? updatedProduct : product)),
               }
             : this.stats;
-          this.message = successMessage;
+          this.notifications.success(successMessage);
           this.clearUpdating(productId);
           onSuccess?.();
         },
@@ -388,7 +374,6 @@ export class MyProductsComponent implements OnInit {
 
     target[field] = value;
     lastValid[field] = value;
-    this.clearError();
   }
 
   private validateNumberField<T extends ProductForm>(
@@ -408,7 +393,6 @@ export class MyProductsComponent implements OnInit {
 
     target[field] = numericValue;
     lastValid[field] = numericValue;
-    this.clearError();
   }
 
   private validateNonNegative(value: number, label: string) {
@@ -421,31 +405,7 @@ export class MyProductsComponent implements OnInit {
   }
 
   private showError(message: string) {
-    if (this.errorTimer) {
-      clearTimeout(this.errorTimer);
-    }
-
-    this.message = '';
-    this.errorMessage = message;
-    this.cdr.detectChanges();
-
-    this.errorTimer = setTimeout(() => {
-      this.errorMessage = '';
-      this.errorTimer = null;
-      this.cdr.detectChanges();
-    }, 3000);
-  }
-
-  private clearError() {
-    if (this.errorTimer) {
-      clearTimeout(this.errorTimer);
-      this.errorTimer = null;
-    }
-
-    if (this.errorMessage) {
-      this.errorMessage = '';
-      this.cdr.detectChanges();
-    }
+    this.notifications.error(message);
   }
 
   private clearUpdating(productId: number) {
