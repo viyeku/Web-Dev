@@ -1,31 +1,103 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Product } from '../models';
+import { computed, Injectable, signal } from '@angular/core';
+import { CartEntry, CartSummary, Product } from '../models';
+import { ApiService } from './api';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  // Назовем так, чтобы и старые, и новые компоненты понимали
-  items = signal<Product[]>([]);
-  
-  // Геттер для совместимости с кодом, который ищет cartItems
-  get cartItems() {
-    return this.items();
-  }
+  items = signal<CartEntry[]>([]);
+  totalItems = signal(0);
+  totalPrice = signal(0);
+  loading = signal(false);
+  errorMessage = signal('');
 
-  count = computed(() => this.items().length);
+  itemCount = computed(() => this.totalItems());
+
+  constructor(private api: ApiService) {}
+
+  loadCart() {
+    this.loading.set(true);
+    this.api.getCart().subscribe({
+      next: (cart) => this.applyCart(cart),
+      error: () => {
+        this.errorMessage.set('Не удалось загрузить корзину.');
+        this.loading.set(false);
+      },
+    });
+  }
 
   addToCart(product: Product) {
-    this.items.update(prev => [...prev, product]);
+    this.api.addToCart(product.id).subscribe({
+      next: (cart) => this.applyCart(cart),
+      error: () => this.errorMessage.set('Не удалось добавить товар в корзину.'),
+    });
   }
 
-  // Исправляем ошибку "not assignable to parameter of type number"
-  // Теперь метод может принимать и объект, и число
-  updateQuantity(itemOrId: any, delta: number) {
-    const id = typeof itemOrId === 'object' ? itemOrId.id : itemOrId;
-    console.log(`Обновляем товар ${id} на ${delta}`);
-    // Здесь будет логика изменения количества
+  updateQuantity(productOrId: Product | number, delta: number) {
+    const productId = typeof productOrId === 'number' ? productOrId : productOrId.id;
+    const entry = this.items().find((item) => item.product.id === productId);
+
+    if (!entry) {
+      if (typeof productOrId !== 'number' && delta > 0) {
+        this.addToCart(productOrId);
+      }
+      return;
+    }
+
+    const nextQuantity = entry.quantity + delta;
+
+    if (nextQuantity <= 0) {
+      this.removeItem(entry.id);
+      return;
+    }
+
+    this.api.updateCartItem(entry.id, nextQuantity).subscribe({
+      next: (cart) => this.applyCart(cart),
+      error: () => this.errorMessage.set('Не удалось обновить корзину.'),
+    });
+  }
+
+  removeItem(itemId: number) {
+    this.api.removeCartItem(itemId).subscribe({
+      next: (cart) => this.applyCart(cart),
+      error: () => this.errorMessage.set('Не удалось удалить товар из корзины.'),
+    });
   }
 
   removeFromCart(productId: number) {
-    this.items.update(prev => prev.filter(p => p.id !== productId));
+    const entry = this.items().find((item) => item.product.id === productId);
+    if (entry) {
+      this.removeItem(entry.id);
+    }
+  }
+
+  checkout(onSuccess?: (ordersCreated: number) => void) {
+    this.api.checkoutCart().subscribe({
+      next: (result) => {
+        this.applyCart(result.cart);
+        onSuccess?.(result.orders_created);
+      },
+      error: (error) => {
+        this.errorMessage.set(error?.error?.error || 'Не удалось оформить заказ.');
+      },
+    });
+  }
+
+  getQuantity(productId: number): number {
+    return this.items().find((entry) => entry.product.id === productId)?.quantity ?? 0;
+  }
+
+  clearLocalState() {
+    this.items.set([]);
+    this.totalItems.set(0);
+    this.totalPrice.set(0);
+    this.errorMessage.set('');
+  }
+
+  private applyCart(cart: CartSummary) {
+    this.items.set(cart.items);
+    this.totalItems.set(cart.total_items);
+    this.totalPrice.set(cart.total_price);
+    this.errorMessage.set('');
+    this.loading.set(false);
   }
 }

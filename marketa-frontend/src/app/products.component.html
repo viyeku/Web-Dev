@@ -1,20 +1,71 @@
-<div class="grid grid-cols-2 gap-6">
-  @for (p of products; track p.id) {
-    <div class="bg-white p-4 rounded-[40px] shadow-sm">
-      <h3 class="font-black text-[10px] uppercase">{{ p.name }}</h3>
-      <span class="text-xl font-black">{{ p.price }} ₸</span>
-      
-      @if (getInCartQty(p.id) === 0) {
-        <button (click)="addToCart(p)" class="bg-[#16A34A] text-white p-2 rounded-xl">
-          Добавить
+<div class="page-grid">
+  <aside class="panel">
+    <span class="eyebrow">Категории</span>
+    <div class="stack section-block">
+      <button
+        class="ghost-button category-filter"
+        [class.is-selected]="selectedCategoryId === null"
+        type="button"
+        (click)="selectCategory(null)"
+      >
+        Все товары
+      </button>
+
+      @for (category of categories; track category.id) {
+        <button
+          class="ghost-button category-filter"
+          [class.is-selected]="selectedCategoryId === category.id"
+          type="button"
+          (click)="selectCategory(category.id)"
+        >
+          {{ category.name }}
         </button>
-      } @else {
-        <div class="flex items-center gap-2">
-          <button (click)="cartService.updateQuantity(p, -1)">-</button>
-          <span>{{ getInCartQty(p.id) }}</span>
-          <button (click)="cartService.updateQuantity(p, 1)">+</button>
-        </div>
       }
     </div>
-  }
+  </aside>
+
+  <section>
+    <div class="list-toolbar">
+      <div>
+        <h1 class="section-title">Главная</h1>
+        @if (searchTerm) {
+          <p class="muted">Результаты поиска: "{{ searchTerm }}"</p>
+        }
+      </div>
+
+      <div class="inline-actions">
+        <select
+          class="field-select compact-select"
+          [ngModel]="ordering"
+          (ngModelChange)="changeOrdering($event)"
+        >
+          <option value="-created_at">Сначала новые</option>
+          <option value="price">Сначала дешевле</option>
+          <option value="-price">Сначала дороже</option>
+        </select>
+        <button class="ghost-button" type="button" (click)="clearFilters()">Сбросить</button>
+      </div>
+    </div>
+
+    @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+    }
+
+    @if (loading) {
+      <div class="empty-state">
+        <h2>Загружаем товары...</h2>
+      </div>
+    } @else if (!products.length) {
+      <div class="empty-state">
+        <h2>Ничего не найдено</h2>
+        <p class="muted">Попробуйте выбрать другую категорию или очистить поиск.</p>
+      </div>
+    } @else {
+      <div class="product-grid">
+        @for (product of products; track trackById($index, product)) {
+          <app-product-card [product]="product" mode="catalog" />
+        }
+      </div>
+    }
+  </section>
 </div>

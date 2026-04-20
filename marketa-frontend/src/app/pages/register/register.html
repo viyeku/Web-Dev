@@ -1,0 +1,48 @@
+<div class="auth-shell">
+  <section class="auth-card">
+    <div class="auth-header">
+      <span class="eyebrow">Create Account</span>
+      <h1>Создайте профиль в Marketa.</h1>
+      <p class="muted">Выберите роль: покупатель только покупает, продавец может публиковать товары.</p>
+    </div>
+
+    @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+    }
+
+    <div class="auth-grid two-up section-block">
+      <label>
+        <span class="field-label">Username</span>
+        <input class="field-input" type="text" [(ngModel)]="form.username" />
+      </label>
+      <label>
+        <span class="field-label">Email</span>
+        <input class="field-input" type="email" [(ngModel)]="form.email" />
+      </label>
+      <label>
+        <span class="field-label">Имя</span>
+        <input class="field-input" type="text" [(ngModel)]="form.first_name" />
+      </label>
+      <label>
+        <span class="field-label">Фамилия</span>
+        <input class="field-input" type="text" [(ngModel)]="form.last_name" />
+      </label>
+      <label>
+        <span class="field-label">Пароль</span>
+        <input class="field-input" type="password" [(ngModel)]="form.password" />
+      </label>
+      <label>
+        <span class="field-label">Роль</span>
+        <select class="field-select" [(ngModel)]="form.role">
+          <option value="buyer">Покупатель</option>
+          <option value="seller">Продавец</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="inline-actions section-block">
+      <button class="primary-button" type="button" (click)="submit()">Зарегистрироваться</button>
+      <a class="ghost-button" routerLink="/login">Уже есть аккаунт</a>
+    </div>
+  </section>
+</div>

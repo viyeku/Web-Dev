@@ -1,33 +1,52 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
+import { FavoritesService } from '../../services/favorites.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.css',
 })
 export class LoginComponent {
-  // Данные для [(ngModel)] — требование: 4 контрола (сделаем 2 тут, 2 в профиле)
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly cart = inject(CartService);
+  private readonly favorites = inject(FavoritesService);
+
   loginData = {
     username: '',
-    password: ''
+    password: '',
   };
 
-  errorMessage: string = '';
+  errorMessage = '';
 
-  constructor(private router: Router) {}
-
-  // Метод для (click) события
   onLogin() {
-    if (this.loginData.username === 'admin' && this.loginData.password === '12345') {
-      console.log('Успешный вход:', this.loginData);
-      this.router.navigate(['/products']); // Перенаправление после входа
-    } else {
-      this.errorMessage = 'Неверный логин или пароль!';
-    }
+    this.errorMessage = '';
+    this.auth.login(this.loginData).subscribe({
+      next: () => {
+        this.cart.loadCart();
+        this.favorites.loadFavorites();
+        this.router.navigate(['/products']);
+      },
+      error: (error) => {
+        if (error.status === 0) {
+          this.errorMessage = 'Backend недоступен. Убедитесь, что Django запущен на http://localhost:8000.';
+          return;
+        }
+
+        if (error.status === 401) {
+          this.errorMessage = 'Неверный логин или пароль.';
+          return;
+        }
+
+        this.errorMessage = 'Не удалось выполнить вход.';
+      },
+    });
   }
 }

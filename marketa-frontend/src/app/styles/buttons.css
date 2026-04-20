@@ -1,0 +1,47 @@
+.ghost-button,
+.primary-button,
+.secondary-button {
+  border: none;
+  border-radius: 16px;
+  padding: 12px 16px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.ghost-button {
+  background: rgba(16, 33, 43, 0.08);
+  color: var(--ink-950);
+}
+
+.primary-button {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 10px 24px rgba(239, 131, 84, 0.28);
+}
+
+.secondary-button {
+  background: rgba(125, 187, 140, 0.16);
+  color: var(--ink-950);
+}
+
+.ghost-button:hover,
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-1px);
+}
+
+.qty-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(16, 33, 43, 0.08);
+}
+
+.qty-box button {
+  border: none;
+  background: transparent;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}

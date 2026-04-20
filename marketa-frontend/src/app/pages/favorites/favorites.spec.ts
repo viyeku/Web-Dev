@@ -1,17 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 
-import { Favorites } from './favorites';
+import { FavoritesComponent } from './favorites';
 
 describe('Favorites', () => {
-  let component: Favorites;
-  let fixture: ComponentFixture<Favorites>;
+  let component: FavoritesComponent;
+  let fixture: ComponentFixture<FavoritesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Favorites],
+      imports: [FavoritesComponent],
+      providers: [provideHttpClient(), provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Favorites);
+    fixture = TestBed.createComponent(FavoritesComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

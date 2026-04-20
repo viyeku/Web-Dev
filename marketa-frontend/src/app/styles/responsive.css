@@ -1,0 +1,39 @@
+@media (max-width: 1080px) {
+  .page-grid,
+  .split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .shell-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-search {
+    max-width: none;
+    width: 100%;
+  }
+
+  .shell-actions {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    padding: 12px;
+  }
+
+  .hero-strip,
+  .auth-grid.two-up {
+    grid-template-columns: 1fr;
+  }
+
+  .product-meta,
+  .table-row,
+  .list-toolbar {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+}

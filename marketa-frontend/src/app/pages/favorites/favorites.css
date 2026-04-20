@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+.favorites-empty {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.favorites-empty h2,
+.favorites-empty p {
+  margin: 0;
+}

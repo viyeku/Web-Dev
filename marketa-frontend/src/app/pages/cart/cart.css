@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+.cart-empty {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.cart-empty h2,
+.cart-empty p {
+  margin: 0;
+}

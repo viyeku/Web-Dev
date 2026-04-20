@@ -1,1 +1,28 @@
-<p>favorites works!</p>
+<section class="glass-card">
+  <span class="eyebrow">Избранное</span>
+  <h1 class="section-title">Избранные товары</h1>
+</section>
+
+@if (favorites.errorMessage()) {
+  <div class="error-message section-block">{{ favorites.errorMessage() }}</div>
+}
+
+@if (cart.errorMessage()) {
+  <div class="error-message section-block">{{ cart.errorMessage() }}</div>
+}
+
+<section class="section-block">
+  @if (!favorites.products().length) {
+    <div class="empty-state favorites-empty">
+      <h2>Пока пусто</h2>
+      <p class="muted">Добавьте товары с главной страницы в избранное.</p>
+      <a class="primary-button" routerLink="/products">На главную</a>
+    </div>
+  } @else {
+    <div class="product-grid">
+      @for (product of favorites.products(); track product.id) {
+        <app-product-card [product]="product" mode="favorites" />
+      }
+    </div>
+  }
+</section>

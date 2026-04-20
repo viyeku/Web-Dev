@@ -26,7 +26,16 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/app/styles/base.css",
+              "src/app/styles/shell.css",
+              "src/app/styles/buttons.css",
+              "src/app/styles/layout.css",
+              "src/app/styles/forms.css",
+              "src/app/styles/product-cards.css",
+              "src/app/styles/feedback.css",
+              "src/app/styles/tables.css",
+              "src/app/styles/responsive.css"
             ]
           },
           "configurations": {

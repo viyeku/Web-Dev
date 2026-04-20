@@ -1,0 +1,52 @@
+<article class="product-card">
+  <a class="product-thumb product-thumb-button" [routerLink]="['/products', product.id]">
+    @if (productImageUrl(product); as imageUrl) {
+      <img [src]="imageUrl" [alt]="product.name" />
+    } @else {
+      <span>{{ product.name.charAt(0) }}</span>
+    }
+  </a>
+
+  <div class="product-meta">
+    <div class="product-title-block">
+      <span class="eyebrow">{{ product.category_name }}</span>
+      <a class="card-title-link" [routerLink]="['/products', product.id]">
+        <h3>{{ product.name }}</h3>
+      </a>
+      <p class="muted">{{ product.owner_username }}</p>
+    </div>
+
+    @if (mode === 'catalog') {
+      <button class="ghost-button" type="button" (click)="favorites.toggle(product)">
+        {{ favorites.isFavorite(product.id) ? 'Убрать' : 'В избранное' }}
+      </button>
+    }
+  </div>
+
+  <div class="product-actions">
+    <div class="product-price-block">
+      <div class="price-tag">{{ formatPrice(product.price) }} ₸</div>
+      <div class="muted">Остаток: {{ product.quantity }}</div>
+    </div>
+
+    <div class="product-card-buttons">
+      @if (cart.getQuantity(product.id) > 0) {
+        <div class="qty-box">
+          <button type="button" (click)="cart.updateQuantity(product.id, -1)">-</button>
+          <span>{{ cart.getQuantity(product.id) }}</span>
+          <button type="button" (click)="cart.updateQuantity(product, 1)">+</button>
+        </div>
+      } @else {
+        <button class="primary-button" type="button" (click)="cart.addToCart(product)">
+          В корзину
+        </button>
+      }
+
+      @if (mode === 'favorites') {
+        <button class="ghost-button" type="button" (click)="favorites.toggle(product.id)">Убрать</button>
+      } @else {
+        <a class="secondary-button" [routerLink]="['/products', product.id]">Подробнее</a>
+      }
+    </div>
+  </div>
+</article>

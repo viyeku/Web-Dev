@@ -1,0 +1,15 @@
+.message,
+.error-message {
+  padding: 12px 14px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+}
+
+.message {
+  background: rgba(125, 187, 140, 0.2);
+}
+
+.error-message {
+  background: rgba(215, 102, 52, 0.16);
+  color: #8b2e0c;
+}

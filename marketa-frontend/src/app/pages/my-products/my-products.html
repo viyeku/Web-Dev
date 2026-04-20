@@ -1,1 +1,251 @@
-<p>my-products works!</p>
+@if (errorMessage) {
+  <div class="my-products-toast error-message">{{ errorMessage }}</div>
+}
+
+@if (!auth.canSell()) {
+  <div class="empty-state">
+    <h2>Этот раздел только для продавцов</h2>
+    <p class="muted">Покупатели могут смотреть товары, добавлять их в избранное и корзину.</p>
+  </div>
+} @else {
+  <section class="split-layout">
+    <div class="glass-card">
+      <span class="eyebrow">Панель продавца</span>
+      <h1 class="section-title">Мои товары</h1>
+
+      <div class="hero-strip section-block">
+        <div class="stat-card">
+          <strong>{{ stats?.products_count ?? 0 }}</strong>
+          <span class="muted">товаров опубликовано</span>
+        </div>
+        <div class="stat-card">
+          <strong>{{ stats?.sold_quantity ?? 0 }}</strong>
+          <span class="muted">единиц продано</span>
+        </div>
+        <div class="stat-card">
+          <strong>{{ formatPrice(stats?.sold_value ?? 0) }} ₸</strong>
+          <span class="muted">сумма продаж</span>
+        </div>
+      </div>
+
+      @if (message) {
+        <div class="message section-block">{{ message }}</div>
+      }
+
+      <div class="table-list section-block">
+        @if (loading) {
+          <div class="empty-state">
+            <h2>Загружаем ваши товары...</h2>
+          </div>
+        } @else if (!products.length) {
+          <div class="empty-state">
+            <h2>Пока товаров нет</h2>
+            <p class="muted">Добавьте первый товар через форму справа.</p>
+          </div>
+        } @else {
+          @for (product of products; track product.id) {
+            <div class="seller-product-card">
+              <div class="table-row seller-product-row">
+                <a class="seller-product-thumb" [routerLink]="['/products', product.id]">
+                  @if (productImageUrl(product); as imageUrl) {
+                    <img [src]="imageUrl" [alt]="product.name" />
+                  } @else {
+                    <span>{{ product.name.charAt(0) }}</span>
+                  }
+                </a>
+
+                <div>
+                  <a class="card-title-link" [routerLink]="['/products', product.id]">
+                    <h3>{{ product.name }}</h3>
+                  </a>
+                  <p class="muted">{{ product.category_name }}</p>
+                </div>
+
+                <strong>{{ formatPrice(product.price) }} ₸</strong>
+                <span class="muted">Остаток: {{ product.quantity }}</span>
+                <span class="muted">{{ product.is_active ? 'Активен' : 'Скрыт' }}</span>
+                <span class="muted">Продано: {{ product.sold_quantity }}</span>
+
+                <button class="secondary-button" type="button" (click)="startEdit(product)" [disabled]="isUpdating(product.id)">
+                  Редактировать
+                </button>
+              </div>
+
+              @if (editingProductId === product.id && editForm) {
+                <div class="edit-card">
+                  <div class="edit-card-preview">
+                    <div class="product-thumb">
+                      @if (editForm.imagePreview) {
+                        <img [src]="editForm.imagePreview" [alt]="editForm.name" />
+                      } @else {
+                        <span>{{ editForm.name.charAt(0) || '?' }}</span>
+                      }
+                    </div>
+
+                    <label>
+                      <span class="field-label">Новое фото</span>
+                      <input class="field-input" type="file" accept="image/*" (change)="onEditImageSelected($event)" />
+                    </label>
+                  </div>
+
+                  <div class="auth-grid">
+                    <label>
+                      <span class="field-label">Название</span>
+                      <input
+                        class="field-input"
+                        type="text"
+                        [(ngModel)]="editForm.name"
+                        (blur)="validateEditName()"
+                        (keydown.enter)="validateEditName()"
+                      />
+                    </label>
+
+                    <label>
+                      <span class="field-label">Описание</span>
+                      <textarea
+                        class="field-textarea"
+                        [(ngModel)]="editForm.description"
+                        (blur)="validateEditDescription()"
+                        (keydown.enter)="validateEditDescription()"
+                      ></textarea>
+                    </label>
+
+                    <div class="auth-grid two-up">
+                      <label>
+                        <span class="field-label">Цена</span>
+                        <input
+                          class="field-input"
+                          type="number"
+                          min="0"
+                          [(ngModel)]="editForm.price"
+                          (blur)="validateEditPrice()"
+                          (keydown.enter)="validateEditPrice()"
+                        />
+                      </label>
+
+                      <label>
+                        <span class="field-label">Количество</span>
+                        <input
+                          class="field-input"
+                          type="number"
+                          min="0"
+                          [(ngModel)]="editForm.quantity"
+                          (blur)="validateEditQuantity()"
+                          (keydown.enter)="validateEditQuantity()"
+                        />
+                      </label>
+                    </div>
+
+                    <div class="auth-grid two-up">
+                      <label>
+                        <span class="field-label">Категория</span>
+                        <select class="field-select" [(ngModel)]="editForm.category">
+                          <option [ngValue]="null">Выберите категорию</option>
+                          @for (category of categories; track category.id) {
+                            <option [ngValue]="category.id">{{ category.name }}</option>
+                          }
+                        </select>
+                      </label>
+
+                      <label class="product-active-toggle edit-active-toggle">
+                        <input type="checkbox" [(ngModel)]="editForm.is_active" />
+                        <span>{{ editForm.is_active ? 'Товар активен' : 'Товар скрыт' }}</span>
+                      </label>
+                    </div>
+
+                    <div class="inline-actions">
+                      <button class="primary-button" type="button" (click)="saveEdit()" [disabled]="isUpdating(product.id)">
+                        {{ isUpdating(product.id) ? 'Сохраняем...' : 'Сохранить карточку' }}
+                      </button>
+                      <button class="ghost-button" type="button" (click)="cancelEdit()" [disabled]="isUpdating(product.id)">
+                        Отмена
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <span class="eyebrow">Новый товар</span>
+      <h2 style="margin-top: 0;">Добавить товар</h2>
+
+      <div class="auth-grid section-block">
+        <label>
+          <span class="field-label">Название</span>
+          <input
+            class="field-input"
+            type="text"
+            [(ngModel)]="form.name"
+            (blur)="validateCreateName()"
+            (keydown.enter)="validateCreateName()"
+            [disabled]="saving"
+          />
+        </label>
+        <label>
+          <span class="field-label">Описание</span>
+          <textarea
+            class="field-textarea"
+            [(ngModel)]="form.description"
+            (blur)="validateCreateDescription()"
+            (keydown.enter)="validateCreateDescription()"
+            [disabled]="saving"
+          ></textarea>
+        </label>
+        <label>
+          <span class="field-label">Цена</span>
+          <input
+            class="field-input"
+            type="number"
+            min="0"
+            [(ngModel)]="form.price"
+            (blur)="validateCreatePrice()"
+            (keydown.enter)="validateCreatePrice()"
+            [disabled]="saving"
+          />
+        </label>
+        <label>
+          <span class="field-label">Количество</span>
+          <input
+            class="field-input"
+            type="number"
+            min="0"
+            [(ngModel)]="form.quantity"
+            (blur)="validateCreateQuantity()"
+            (keydown.enter)="validateCreateQuantity()"
+            [disabled]="saving"
+          />
+        </label>
+        <label>
+          <span class="field-label">Категория</span>
+          <select class="field-select" [(ngModel)]="form.category" [disabled]="saving">
+            <option [ngValue]="null">Выберите категорию</option>
+            @for (category of categories; track category.id) {
+              <option [ngValue]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span class="field-label">Фото товара</span>
+          <input class="field-input" type="file" accept="image/*" (change)="onImageSelected($event)" [disabled]="saving" />
+        </label>
+
+        @if (imagePreview) {
+          <div class="product-thumb">
+            <img [src]="imagePreview" alt="Предпросмотр товара" />
+          </div>
+        }
+      </div>
+
+      <div class="inline-actions section-block">
+        <button class="primary-button" type="button" (click)="createProduct()" [disabled]="saving">
+          {{ saving ? 'Публикуем...' : 'Опубликовать' }}
+        </button>
+      </div>
+    </div>
+  </section>
+}

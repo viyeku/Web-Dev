@@ -1,21 +1,29 @@
-<div class="login-box">
-  <h2>Marketa</h2>
+<div class="auth-shell">
+  <section class="auth-card">
+    <div class="auth-header">
+      <span class="eyebrow">Marketplace Login</span>
+      <h1>Войдите в Marketa.</h1>
+    </div>
 
-  @if (errorMessage) {
-    <div class="error-badge">{{ errorMessage }}</div>
-  }
+    @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+    }
 
-  <div class="form-group">
-    <label>Name:</label>
-    <input type="text" [(ngModel)]="loginData.username" placeholder="Введите логин">
-  </div>
+    <div class="auth-grid section-block">
+      <label>
+        <span class="field-label">Логин</span>
+        <input class="field-input" type="text" [(ngModel)]="loginData.username" placeholder="Введите username" />
+      </label>
 
-  <div class="form-group">
-    <label>Password:</label>
-    <input type="password" [(ngModel)]="loginData.password" placeholder="Введите пароль">
-  </div>
+      <label>
+        <span class="field-label">Пароль</span>
+        <input class="field-input" type="password" [(ngModel)]="loginData.password" placeholder="Введите пароль" />
+      </label>
+    </div>
 
-  <button (click)="onLogin()">Sing in</button>
-  
-  <p><a routerLink="/register">Sing up</a></p>
+    <div class="inline-actions section-block">
+      <button class="primary-button" type="button" (click)="onLogin()">Войти</button>
+      <a class="ghost-button" routerLink="/register">Регистрация</a>
+    </div>
+  </section>
 </div>

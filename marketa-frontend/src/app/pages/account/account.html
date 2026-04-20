@@ -1,21 +1,111 @@
-<div class="account-container">
-  <h2>Личный кабинет</h2>
+<section class="glass-card">
+  <span class="eyebrow">Кабинет</span>
+  <h1 class="section-title">Личный кабинет</h1>
+</section>
 
-  @if (message) {
-    <div class="success-alert">{{ message }}</div>
-  }
+@if (message) {
+  <div class="message section-block">{{ message }}</div>
+}
 
-  <div class="profile-card">
-    <div class="field">
-      <label>Электронная почта:</label>
-      <input type="email" [(ngModel)]="userProfile.email">
-    </div>
+@if (errorMessage) {
+  <div class="error-message section-block">{{ errorMessage }}</div>
+}
 
-    <div class="field">
-      <label>О себе:</label>
-      <textarea [(ngModel)]="userProfile.bio" rows="4"></textarea>
-    </div>
-
-    <button class="save-btn" (click)="updateProfile()">Сохранить изменения</button>
+<section class="glass-card section-block">
+  <div class="auth-grid two-up">
+    <label>
+      <span class="field-label">Username</span>
+      <input class="field-input" type="text" [(ngModel)]="form.username" readonly />
+    </label>
+    <label>
+      <span class="field-label">Роль</span>
+      <input class="field-input" type="text" [value]="form.role === 'seller' ? 'Продавец' : 'Покупатель'" readonly />
+    </label>
+    <label>
+      <span class="field-label">Email</span>
+      <input class="field-input" type="email" [(ngModel)]="form.email" />
+    </label>
+    <label>
+      <span class="field-label">Имя</span>
+      <input class="field-input" type="text" [(ngModel)]="form.first_name" />
+    </label>
+    <label>
+      <span class="field-label">Фамилия</span>
+      <input class="field-input" type="text" [(ngModel)]="form.last_name" />
+    </label>
   </div>
-</div>
+
+  <div class="inline-actions section-block">
+    <button class="primary-button" type="button" (click)="updateProfile()">Сохранить</button>
+  </div>
+</section>
+
+@if (historyErrorMessage) {
+  <div class="error-message section-block">{{ historyErrorMessage }}</div>
+}
+
+<section class="split-layout section-block">
+  <div class="glass-card">
+    <span class="eyebrow">Покупки</span>
+    <h2 style="margin-top: 0;">Мои заказы</h2>
+
+    @if (loadingOrders) {
+      <div class="empty-state section-block">
+        <h2>Загружаем историю...</h2>
+      </div>
+    } @else if (!orders.length) {
+      <div class="empty-state section-block">
+        <h2>Заказов пока нет</h2>
+        <p class="muted">После оформления корзины покупки появятся здесь.</p>
+      </div>
+    } @else {
+      <div class="table-list section-block">
+        @for (order of orders; track order.id) {
+          <div class="table-row">
+            <div>
+              <a class="card-title-link" [routerLink]="['/products', order.product.id]">
+                <h3>{{ order.product.name }}</h3>
+              </a>
+              <p class="muted">{{ formatDate(order.created_at) }} · продавец: {{ order.seller_username }}</p>
+            </div>
+            <span class="muted">x{{ order.count }}</span>
+            <strong>{{ formatPrice(order.total_price) }} ₸</strong>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (auth.canSell()) {
+    <div class="glass-card">
+      <span class="eyebrow">Продажи</span>
+      <h2 style="margin-top: 0;">История продаж</h2>
+
+      @if (loadingSales) {
+        <div class="empty-state section-block">
+          <h2>Загружаем продажи...</h2>
+        </div>
+      } @else if (!sales.length) {
+        <div class="empty-state section-block">
+          <h2>Продаж пока нет</h2>
+          <p class="muted">Когда покупатели оформят ваши товары, продажи появятся здесь.</p>
+        </div>
+      } @else {
+        <div class="table-list section-block">
+          @for (sale of sales; track sale.id) {
+            <div class="table-row">
+              <div>
+                <a class="card-title-link" [routerLink]="['/products', sale.product.id]">
+                  <h3>{{ sale.product.name }}</h3>
+                </a>
+                <p class="muted">{{ formatDate(sale.created_at) }} · покупатель: {{ sale.buyer_username }}</p>
+              </div>
+              <span class="muted">x{{ sale.count }}</span>
+              <strong>{{ formatPrice(sale.total_price) }} ₸</strong>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

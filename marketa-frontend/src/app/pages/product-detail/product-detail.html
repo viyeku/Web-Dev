@@ -1,1 +1,128 @@
-<p>product-detail works!</p>
+@if (errorMessage) {
+  <div class="error-message">{{ errorMessage }}</div>
+} @else if (loading) {
+  <div class="empty-state">
+    <h2>Загружаю товар...</h2>
+  </div>
+} @else if (!product) {
+  <div class="empty-state">
+    <h2>Товар не найден</h2>
+  </div>
+} @else {
+  <section class="detail-card glass-card">
+    <div class="detail-photo">
+      @if (productImageUrl(product); as imageUrl) {
+        <img [src]="imageUrl" [alt]="product.name" />
+      } @else {
+        <span>{{ product.name.charAt(0) }}</span>
+      }
+    </div>
+
+    <div class="detail-info">
+      <span class="eyebrow">{{ product.category_name }}</span>
+      <h1 class="section-title">{{ product.name }}</h1>
+      <p class="muted">{{ product.description }}</p>
+
+      <div class="detail-facts">
+        <div>
+          <span class="field-label">Цена</span>
+          <strong class="price-tag">{{ formatPrice(product.price) }} ₸</strong>
+        </div>
+        <div>
+          <span class="field-label">Остаток</span>
+          <strong>{{ product.quantity }}</strong>
+        </div>
+        <div>
+          <span class="field-label">Продавец</span>
+          <strong>{{ product.owner_username }}</strong>
+        </div>
+      </div>
+
+      <div class="inline-actions section-block">
+        @if (cart.getQuantity(product.id) > 0) {
+          <div class="qty-box">
+            <button type="button" (click)="cart.updateQuantity(product.id, -1)">-</button>
+            <span>{{ cart.getQuantity(product.id) }}</span>
+            <button type="button" (click)="cart.updateQuantity(product, 1)">+</button>
+          </div>
+        } @else {
+          <button class="primary-button" type="button" (click)="cart.addToCart(product)">В корзину</button>
+        }
+
+        <button class="ghost-button" type="button" (click)="favorites.toggle(product)">
+          {{ favorites.isFavorite(product.id) ? 'Убрать из избранного' : 'В избранное' }}
+        </button>
+        <button class="secondary-button" type="button" (click)="goBack()">Назад</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="reviews-layout section-block">
+    <div class="glass-card">
+      <span class="eyebrow">Отзывы</span>
+      <h2 style="margin-top: 0;">Отзывы покупателей</h2>
+
+      @if (reviewMessage) {
+        <div class="message">{{ reviewMessage }}</div>
+      }
+
+      @if (reviewErrorMessage) {
+        <div class="error-message">{{ reviewErrorMessage }}</div>
+      }
+
+      @if (loadingReviews) {
+        <div class="empty-state section-block">
+          <h2>Загружаем отзывы...</h2>
+        </div>
+      } @else if (!reviews.length) {
+        <div class="empty-state section-block">
+          <h2>Отзывов пока нет</h2>
+          <p class="muted">Будьте первым, кто поделится впечатлением.</p>
+        </div>
+      } @else {
+        <div class="review-list section-block">
+          @for (review of reviews; track review.id) {
+            <article class="review-card">
+              <div class="review-head">
+                <strong>{{ review.author_name }}</strong>
+                <span class="price-tag review-rating">{{ review.rating }}/5</span>
+              </div>
+              <p>{{ review.comment }}</p>
+              <span class="muted">{{ formatDate(review.created_at) }}</span>
+            </article>
+          }
+        </div>
+      }
+    </div>
+
+    <form class="glass-card review-form" (ngSubmit)="createReview()">
+      <span class="eyebrow">Ваш отзыв</span>
+      <h2 style="margin-top: 0;">Оставить отзыв</h2>
+
+      <label>
+        <span class="field-label">Оценка</span>
+        <select class="field-select" [(ngModel)]="reviewForm.rating" name="rating" [disabled]="savingReview">
+          <option [ngValue]="5">5 - отлично</option>
+          <option [ngValue]="4">4 - хорошо</option>
+          <option [ngValue]="3">3 - нормально</option>
+          <option [ngValue]="2">2 - плохо</option>
+          <option [ngValue]="1">1 - ужасно</option>
+        </select>
+      </label>
+
+      <label>
+        <span class="field-label">Комментарий</span>
+        <textarea
+          class="field-textarea"
+          [(ngModel)]="reviewForm.comment"
+          name="comment"
+          [disabled]="savingReview"
+        ></textarea>
+      </label>
+
+      <button class="primary-button" type="submit" [disabled]="savingReview">
+        {{ savingReview ? 'Отправляем...' : 'Добавить отзыв' }}
+      </button>
+    </form>
+  </section>
+}

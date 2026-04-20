@@ -1,21 +1,64 @@
-from rest_framework import viewsets, filters
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.response import Response
+from django.db.models import Q
 from ..models import Product
+from ..permissions import IsSellerOwnerOrReadOnly, is_seller
 from ..serializers import ProductSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'is_active']
-    search_fields = ['name', 'description']
-    ordering_fields = ['price', 'created_at']
+    permission_classes = [IsSellerOwnerOrReadOnly]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+    ordering_fields = ['price', 'created_at', 'name']
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+
+        category_id = self.request.query_params.get('category')
+        is_active = self.request.query_params.get('is_active')
+        search = self.request.query_params.get('search')
+        ordering = self.request.query_params.get('ordering')
+
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+
+        if is_active is not None:
+            queryset = queryset.filter(is_active=is_active.lower() == 'true')
+
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) |
+                Q(description__icontains=search) |
+                Q(owner__username__icontains=search) |
+                Q(owner__first_name__icontains=search) |
+                Q(owner__last_name__icontains=search)
+            )
+
+        if ordering in self.ordering_fields or ordering in [f'-{field}' for field in self.ordering_fields]:
+            queryset = queryset.order_by(ordering)
+
+        return queryset
 
     def get_permissions(self):
-        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+        if self.action == 'mine':
             return [IsAuthenticated()]
-        return [AllowAny()]
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsSellerOwnerOrReadOnly()]
 
     def perform_create(self, serializer):
+        if not is_seller(self.request.user):
+            raise PermissionDenied('Only sellers can publish products.')
+
         serializer.save(owner=self.request.user)
+
+    @action(detail=False, methods=['get'])
+    def mine(self, request):
+        queryset = self.filter_queryset(self.get_queryset().filter(owner=request.user))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
