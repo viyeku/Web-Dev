@@ -7,6 +7,7 @@ export interface Product {
   image: string | null;
   image_url: string | null;
   is_active: boolean;
+  is_deleted: boolean;
   category: number;
   category_name: string;
   owner: number;

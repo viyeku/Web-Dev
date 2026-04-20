@@ -49,10 +49,10 @@ def register_view(request):
 @api_view(['GET'])
 def get_stats(request):
     data = {
-        "total_products": Product.objects.count(),
-        "active_products": Product.objects.filter(is_active=True).count(),
+        "total_products": Product.objects.filter(is_deleted=False).count(),
+        "active_products": Product.objects.filter(is_active=True, is_deleted=False).count(),
         "total_categories": Category.objects.count(),
-        "average_price": Product.objects.aggregate(avg=Avg('price'))['avg'] or 0,
+        "average_price": Product.objects.filter(is_deleted=False).aggregate(avg=Avg('price'))['avg'] or 0,
     }
     return Response(data)
 
@@ -97,7 +97,7 @@ def cart_add_view(request):
         return Response({"error": "Quantity must be at least 1."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        product = Product.objects.get(pk=product_id, is_active=True)
+        product = Product.objects.get(pk=product_id, is_active=True, is_deleted=False)
     except Product.DoesNotExist:
         return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -189,14 +189,14 @@ def cart_checkout_view(request):
 @permission_classes([IsAuthenticated])
 def favorites_view(request):
     if request.method == 'GET':
-        favorites = Favorite.objects.filter(user=request.user).select_related(
+        favorites = Favorite.objects.filter(user=request.user, product__is_deleted=False).select_related(
             'product', 'product__category', 'product__owner'
         )
         return Response(FavoriteSerializer(favorites, many=True, context={'request': request}).data)
 
     product_id = request.data.get('product_id')
     try:
-        product = Product.objects.get(pk=product_id, is_active=True)
+        product = Product.objects.get(pk=product_id, is_active=True, is_deleted=False)
     except Product.DoesNotExist:
         return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -237,7 +237,7 @@ def sales_history_view(request):
 @permission_classes([IsAuthenticated])
 def product_reviews_view(request, product_id):
     try:
-        product = Product.objects.get(pk=product_id)
+        product = Product.objects.get(pk=product_id, is_deleted=False)
     except Product.DoesNotExist:
         return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -257,7 +257,7 @@ def seller_stats_view(request):
     if not is_seller(request.user):
         return Response({"error": "Only sellers can view sales stats."}, status=status.HTTP_403_FORBIDDEN)
 
-    products = Product.objects.filter(owner=request.user)
+    products = Product.objects.filter(owner=request.user, is_deleted=False)
     orders = Order.objects.filter(product__owner=request.user).select_related('product')
     sold_quantity = orders.aggregate(total=Sum('count'))['total'] or 0
     sold_value = orders.aggregate(total=Sum(F('count') * F('unit_price')))['total'] or 0

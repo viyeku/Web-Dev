@@ -10,7 +10,6 @@
 } @else {
   <section class="split-layout">
     <div class="glass-card">
-      <span class="eyebrow">Панель продавца</span>
       <h1 class="section-title">Мои товары</h1>
 
       <div class="hero-strip section-block">
@@ -66,9 +65,14 @@
                 <span class="muted">{{ product.is_active ? 'Активен' : 'Скрыт' }}</span>
                 <span class="muted">Продано: {{ product.sold_quantity }}</span>
 
-                <button class="secondary-button" type="button" (click)="startEdit(product)" [disabled]="isUpdating(product.id)">
-                  Редактировать
-                </button>
+                <div class="seller-product-actions">
+                  <button class="secondary-button" type="button" (click)="startEdit(product)" [disabled]="isUpdating(product.id)">
+                    Редактировать
+                  </button>
+                  <button class="danger-button" type="button" (click)="deleteProduct(product)" [disabled]="isUpdating(product.id)">
+                    Удалить
+                  </button>
+                </div>
               </div>
 
               @if (editingProductId === product.id && editForm) {
@@ -160,6 +164,9 @@
                       <button class="ghost-button" type="button" (click)="cancelEdit()" [disabled]="isUpdating(product.id)">
                         Отмена
                       </button>
+                      <button class="danger-button" type="button" (click)="deleteProduct(product)" [disabled]="isUpdating(product.id)">
+                        Удалить товар
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -170,8 +177,7 @@
       </div>
     </div>
 
-    <div class="glass-card">
-      <span class="eyebrow">Новый товар</span>
+    <div class="glass-card create-product-card">
       <h2 style="margin-top: 0;">Добавить товар</h2>
 
       <div class="auth-grid section-block">

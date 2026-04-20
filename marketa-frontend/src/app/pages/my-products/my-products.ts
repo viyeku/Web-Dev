@@ -293,6 +293,46 @@ export class MyProductsComponent implements OnInit {
     this.patchProduct(id, payload, 'Карточка товара обновлена.', image, () => this.cancelEdit());
   }
 
+  deleteProduct(product: Product) {
+    const confirmed = window.confirm(`Удалить товар "${product.name}"? История заказов и продаж сохранится.`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.message = '';
+    this.errorMessage = '';
+    this.updatingProductIds = new Set(this.updatingProductIds).add(product.id);
+    this.cdr.detectChanges();
+
+    this.api
+      .deleteProduct(product.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.products = this.products.filter((item) => item.id !== product.id);
+          this.stats = this.stats
+            ? {
+                ...this.stats,
+                products_count: Math.max(0, this.stats.products_count - 1),
+                products: this.stats.products.filter((item) => item.id !== product.id),
+              }
+            : this.stats;
+
+          if (this.editingProductId === product.id) {
+            this.cancelEdit();
+          }
+
+          this.message = 'Товар удалён. История заказов и продаж сохранена.';
+          this.clearUpdating(product.id);
+        },
+        error: (error) => {
+          this.showError(extractApiError(error) || 'Не удалось удалить товар.');
+          this.clearUpdating(product.id);
+        },
+      });
+  }
+
   isUpdating(productId: number) {
     return this.updatingProductIds.has(productId);
   }

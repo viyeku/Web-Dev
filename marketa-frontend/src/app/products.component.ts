@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { finalize, timeout } from 'rxjs';
 import { ProductCardComponent } from './components/product-card/product-card';
 import { Category, Product } from './models';
@@ -22,7 +22,6 @@ export class ProductsComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   readonly cart = inject(CartService);
   readonly favorites = inject(FavoritesService);
   readonly formatPrice = formatPrice;
@@ -117,14 +116,6 @@ export class ProductsComponent implements OnInit {
 
   changeOrdering(ordering: string) {
     this.ordering = ordering;
-    this.loadProducts();
-  }
-
-  clearFilters() {
-    this.selectedCategoryId = null;
-    this.searchTerm = '';
-    this.ordering = '-created_at';
-    this.router.navigate(['/products']);
     this.loadProducts();
   }
 

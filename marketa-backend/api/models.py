@@ -36,6 +36,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     quantity = models.PositiveIntegerField(default=1)
     is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
     image = models.ImageField(upload_to='products/', null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_products')

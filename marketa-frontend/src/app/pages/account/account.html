@@ -1,5 +1,4 @@
 <section class="glass-card">
-  <span class="eyebrow">Кабинет</span>
   <h1 class="section-title">Личный кабинет</h1>
 </section>
 
@@ -46,7 +45,6 @@
 
 <section class="split-layout section-block">
   <div class="glass-card">
-    <span class="eyebrow">Покупки</span>
     <h2 style="margin-top: 0;">Мои заказы</h2>
 
     @if (loadingOrders) {
@@ -78,7 +76,6 @@
 
   @if (auth.canSell()) {
     <div class="glass-card">
-      <span class="eyebrow">Продажи</span>
       <h2 style="margin-top: 0;">История продаж</h2>
 
       @if (loadingSales) {

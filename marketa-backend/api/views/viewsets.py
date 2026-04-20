@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from django.db.models import Q
-from ..models import Product
+from ..models import CartItem, Favorite, Product
 from ..permissions import IsSellerOwnerOrReadOnly, is_seller
 from ..serializers import ProductSerializer
 
@@ -17,7 +17,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price', 'created_at', 'name']
 
     def get_queryset(self):
-        queryset = Product.objects.all()
+        queryset = Product.objects.filter(is_deleted=False)
 
         category_id = self.request.query_params.get('category')
         is_active = self.request.query_params.get('is_active')
@@ -56,6 +56,15 @@ class ProductViewSet(viewsets.ModelViewSet):
             raise PermissionDenied('Only sellers can publish products.')
 
         serializer.save(owner=self.request.user)
+
+    def perform_destroy(self, instance):
+        instance.is_active = False
+        instance.is_deleted = True
+        instance.save(update_fields=['is_active', 'is_deleted'])
+
+        # Product stays in DB for order/sales history, but disappears from active user lists.
+        Favorite.objects.filter(product=instance).delete()
+        CartItem.objects.filter(product=instance).delete()
 
     @action(detail=False, methods=['get'])
     def mine(self, request):

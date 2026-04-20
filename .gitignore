@@ -1,4 +1,5 @@
 /dist
+marketa-frontend/dist/
 /tmp
 /out-tsc
 /bazel-out
@@ -47,6 +48,7 @@ env/
 Thumbs.db
 
 *.sqlite3
+marketa-backend/media/
 
 __pycache__/
 *.pyc

@@ -2,6 +2,18 @@
   display: block;
 }
 
+.glass-card {
+  container-type: inline-size;
+}
+
+.split-layout {
+  align-items: start;
+}
+
+.create-product-card {
+  align-self: start;
+}
+
 .my-products-toast {
   position: fixed;
   top: 50%;
@@ -15,12 +27,17 @@
 }
 
 .seller-product-row {
-  grid-template-columns: 64px minmax(180px, 1fr) auto auto auto auto auto;
+  grid-template-columns: 64px minmax(180px, 1fr) minmax(90px, auto) minmax(110px, auto) minmax(90px, auto) minmax(90px, auto) minmax(220px, auto);
+  overflow: hidden;
 }
 
 .seller-product-card {
   display: grid;
   gap: 12px;
+}
+
+.seller-product-row > * {
+  min-width: 0;
 }
 
 .seller-product-thumb {
@@ -35,6 +52,24 @@
     #fff;
   color: var(--ink-700);
   font-weight: 800;
+}
+
+.seller-product-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.seller-product-actions .secondary-button,
+.seller-product-actions .danger-button {
+  white-space: nowrap;
+}
+
+.seller-product-row strong,
+.seller-product-row .muted,
+.seller-product-row h3 {
+  overflow-wrap: anywhere;
 }
 
 .seller-product-thumb img {
@@ -70,9 +105,72 @@
   padding-top: 24px;
 }
 
+@container (max-width: 880px) {
+  .seller-product-row {
+    grid-template-columns: 64px minmax(0, 1fr) minmax(90px, auto) minmax(100px, auto);
+  }
+
+  .seller-product-actions {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .seller-product-actions .secondary-button,
+  .seller-product-actions .danger-button {
+    width: 100%;
+  }
+}
+
+@container (max-width: 560px) {
+  .seller-product-row {
+    grid-template-columns: 1fr;
+  }
+
+  .seller-product-thumb {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .seller-product-actions {
+    grid-column: auto;
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 1080px) {
-  .seller-product-row,
+  .seller-product-row {
+    grid-template-columns: 64px minmax(0, 1fr) auto auto;
+  }
+
+  .seller-product-actions {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .seller-product-actions .secondary-button,
+  .seller-product-actions .danger-button {
+    width: 100%;
+  }
+
   .edit-card {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .seller-product-row {
+    grid-template-columns: 1fr;
+  }
+
+  .seller-product-thumb {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .seller-product-actions {
+    grid-column: auto;
+    flex-direction: column;
   }
 }

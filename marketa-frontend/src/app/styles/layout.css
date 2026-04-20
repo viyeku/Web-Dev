@@ -20,6 +20,14 @@
   padding: 20px;
 }
 
+.page-grid > .panel {
+  position: sticky;
+  top: 118px;
+  align-self: start;
+  max-height: calc(100vh - 136px);
+  overflow: auto;
+}
+
 .glass-card,
 .stat-card,
 .product-card,

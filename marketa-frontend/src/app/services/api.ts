@@ -100,6 +100,10 @@ export class ApiService {
     return this.http.patch<Product>(`${this.apiUrl}/products/${productId}/`, payload);
   }
 
+  deleteProduct(productId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/products/${productId}/`);
+  }
+
   listCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories/`);
   }

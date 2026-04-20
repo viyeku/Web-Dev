@@ -21,7 +21,7 @@
     <div class="detail-info">
       <span class="eyebrow">{{ product.category_name }}</span>
       <h1 class="section-title">{{ product.name }}</h1>
-      <p class="muted">{{ product.description }}</p>
+      <p class="muted preserve-lines">{{ product.description }}</p>
 
       <div class="detail-facts">
         <div>
@@ -87,7 +87,7 @@
                 <strong>{{ review.author_name }}</strong>
                 <span class="price-tag review-rating">{{ review.rating }}/5</span>
               </div>
-              <p>{{ review.comment }}</p>
+              <p class="preserve-lines">{{ review.comment }}</p>
               <span class="muted">{{ formatDate(review.created_at) }}</span>
             </article>
           }

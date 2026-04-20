@@ -76,6 +76,10 @@
   margin: 10px 0;
 }
 
+.preserve-lines {
+  white-space: pre-line;
+}
+
 .review-head {
   display: flex;
   justify-content: space-between;

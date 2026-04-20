@@ -22,10 +22,10 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'description', 'price', 'quantity', 
             'image', 'image_url',
-            'is_active', 'category', 'category_name', 'owner', 
+            'is_active', 'is_deleted', 'category', 'category_name', 'owner', 
             'owner_username', 'created_at', 'sold_quantity', 'sold_value'
         )
-        read_only_fields = ('owner', 'created_at')
+        read_only_fields = ('owner', 'created_at', 'is_deleted')
 
     def validate_price(self, value):
         if value < 0:
